@@ -53,6 +53,14 @@ module dcr_app 'dcr/dcr-application-vm.bicep' = {
   }
 }
 
+module grafana 'grafana/grafana.bicep' = {
+  name: 'grafana'
+  params: {
+    nameSuffix: nameSuffix
+    location: location
+  }
+}
+
 output dcrId string = dcr_app.outputs.dcrId
 output dceId string = dce_app.outputs.dceId
 

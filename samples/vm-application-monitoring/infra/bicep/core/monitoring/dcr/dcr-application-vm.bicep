@@ -52,19 +52,19 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
           ]
           samplingFrequencyInSeconds: 60
           counterSpecifiers: [
-              '\\VmInsights\\DetailedMetrics'
+            '\\VmInsights\\DetailedMetrics'
           ]
         }
       ]
       extensions: [
-          {
-            streams: [
-              'Microsoft-ServiceMap'
-            ]
-            extensionName: 'DependencyAgent'
-            extensionSettings: {}
-            name: 'DependencyAgentDataSource'
-          }
+        {
+          streams: [
+            'Microsoft-ServiceMap'
+          ]
+          extensionName: 'DependencyAgent'
+          extensionSettings: {}
+          name: 'DependencyAgentDataSource'
+        }
       ]
       windowsEventLogs: [
         {

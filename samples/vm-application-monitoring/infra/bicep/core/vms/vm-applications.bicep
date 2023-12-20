@@ -7,7 +7,7 @@ param dataCollectionEndpointId string
 param networkResouceGroup string
 param monitoringIdentityId string
 @secure()
-param adminPassword string = 'P@ssw0rd1234!'
+param adminPassword string
 
 resource pip_public 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
   name: 'pip-${vmName}'
@@ -17,7 +17,7 @@ resource pip_public 'Microsoft.Network/publicIPAddresses@2023-06-01' = {
   }
 }
 
-resource vmNic 'Microsoft.Network/networkInterfaces@2023-05-01' = {
+resource vm_nic 'Microsoft.Network/networkInterfaces@2023-05-01' = {
   name: 'nic-${vmName}'
   location: location
   properties: {
@@ -73,7 +73,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2023-07-01' = {
     networkProfile: {
       networkInterfaces: [
         {
-          id: vmNic.id
+          id: vm_nic.id
         }
       ]
     }
@@ -137,3 +137,6 @@ resource dependencyAgentExtension 'Microsoft.Compute/virtualMachines/extensions@
     }
   }
 }
+
+output vmIp string = vm_nic.properties.ipConfigurations[0].properties.privateIPAddress
+output vmName string = vm.name

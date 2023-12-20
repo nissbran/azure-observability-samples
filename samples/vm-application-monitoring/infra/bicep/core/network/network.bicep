@@ -1,11 +1,49 @@
 param vnetName string
 param location string = resourceGroup().location
 param addressPrefix string = '10.10.0.0/16'
+param ipAddressSource string
 
 resource vm_nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
   name: 'nsg-vms'
   location: location
-  properties: {}
+  properties: {
+    
+  }
+}
+
+resource appgw_nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
+  name: 'nsg-appgw'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'Allow-HTTP'
+        properties: {
+          protocol: '*'
+          sourcePortRange: '*'
+          destinationPortRange: '80'
+          sourceAddressPrefix: ipAddressSource 
+          destinationAddressPrefix: '*'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+        }
+      }
+      {
+        name: 'AllowGatewayManagerInbound'
+        properties: {
+          access: 'Allow'
+          destinationAddressPrefix: '*'
+          destinationPortRange: '65200-65535'
+          direction: 'Inbound'
+          priority: 110
+          protocol: 'TCP'
+          sourceAddressPrefix: 'GatewayManager'
+          sourcePortRange: '*'
+        }
+      }
+    ]
+  }
 }
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
@@ -35,6 +73,17 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
           addressPrefix: cidrSubnet(addressPrefix, 24, 2)
           privateLinkServiceNetworkPolicies: 'Enabled'
           privateEndpointNetworkPolicies: 'Disabled'
+        }
+      }
+      {
+        name: 'sn-appgw'
+        properties: {
+          addressPrefix: cidrSubnet(addressPrefix, 24, 3)
+          privateLinkServiceNetworkPolicies: 'Enabled'
+          privateEndpointNetworkPolicies: 'Disabled'
+          networkSecurityGroup: {
+            id: appgw_nsg.id
+          }
         }
       }
       {
