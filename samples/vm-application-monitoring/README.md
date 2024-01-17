@@ -22,5 +22,5 @@ This setup is for monitoring application vms with Azure Monitor and Data Collect
 
 ## Deploy the setup
 
-To deploy the setup you need to have the following tools installed:
-* [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
+To deploy with bicep go to the [infra/bicep](infra/bicep) folder and follow the instructions in the [ReadMe.md](infra/bicep/README.md).
+
