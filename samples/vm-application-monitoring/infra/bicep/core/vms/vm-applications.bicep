@@ -3,6 +3,7 @@ param vnetName string
 param vmName string
 param VmsSubnetName string = 'sn-vms'
 param dataCollectionRuleId string
+param securityDataCollectionRuleId string
 param dataCollectionEndpointId string
 param networkResouceGroup string
 param monitoringIdentityId string
@@ -90,6 +91,14 @@ resource dcraVm 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' =
   scope: vm
   properties: {
     dataCollectionRuleId: dataCollectionRuleId
+  }
+}
+
+resource secDcraVm 'Microsoft.Insights/dataCollectionRuleAssociations@2022-06-01' = {
+  name: 'sec-dcra-${vmName}'
+  scope: vm
+  properties: {
+    dataCollectionRuleId: securityDataCollectionRuleId
   }
 }
 

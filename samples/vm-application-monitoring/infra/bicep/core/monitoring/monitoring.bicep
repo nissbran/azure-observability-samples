@@ -3,8 +3,17 @@ param location string = resourceGroup().location
 
 var nameSuffix = 'application'
 
-module logs_workspace 'loganalytics/workspace.bicep' = {
+module logs_workspace 'loganalytics/application-workspace.bicep' = {
   name: 'logs'
+  params: {
+    nameSuffix: nameSuffix
+    location: location
+    networkResourceGroup: networkResourceGroup
+  }
+}
+
+module logs_security_workspace 'loganalytics/security-workspace.bicep' = {
+  name: 'sec_logs'
   params: {
     nameSuffix: nameSuffix
     location: location
@@ -16,7 +25,7 @@ module table_app_logs 'loganalytics/table-application-json-logs.bicep' = {
   name: 'app_logs_table'
   params: {
     workspaceName: logs_workspace.outputs.workspaceName
-    tablePlan: 'Basic'
+    tablePlan: 'Analytics'
   }
   dependsOn: [
     logs_workspace
@@ -53,6 +62,16 @@ module dcr_app 'dcr/dcr-application-vm.bicep' = {
   }
 }
 
+module dcr_security 'dcr/dcr-security-vm.bicep' = {
+  name: 'dcr_security'
+  params: {
+    nameSuffix: nameSuffix
+    location: location
+    dataCollectionEndpointResourceId: dce_app.outputs.dceId
+    workspaceResourceId: logs_security_workspace.outputs.workspaceId
+  }
+}
+
 module grafana 'grafana/grafana.bicep' = {
   name: 'grafana'
   params: {
@@ -63,10 +82,6 @@ module grafana 'grafana/grafana.bicep' = {
 
 output dcrId string = dcr_app.outputs.dcrId
 output dceId string = dce_app.outputs.dceId
+output secDcrId string = dcr_security.outputs.dcrId
+output appLogsWorkspaceId string = logs_workspace.outputs.workspaceId
 
-// module logs_insights 'loganalytics/workspace.bicep' = {
-//   name: la
-//   params: {
-//     nameSuffix: 'insights'
-//   }
-// }

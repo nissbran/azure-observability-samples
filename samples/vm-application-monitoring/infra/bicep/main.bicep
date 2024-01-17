@@ -7,6 +7,8 @@ param ipAddressSource string
 param location string
 @secure()
 param vmPassword string
+@description('Email addresses to which the notifications should be sent. Should be specified as an array of strings, for example, ["user1@contoso.com", "user2@contoso.com"].')
+param emailAddress array
 
 resource rg_network 'Microsoft.Resources/resourceGroups@2022-09-01' = {
   name: rgNameNetwork
@@ -57,6 +59,7 @@ module app_vm_01 'core/vms/vm-applications.bicep' = {
     adminPassword: vmPassword
     dataCollectionEndpointId: monitoring.outputs.dceId
     dataCollectionRuleId: monitoring.outputs.dcrId
+    securityDataCollectionRuleId: monitoring.outputs.secDcrId
     location: location
     networkResouceGroup: rgNameNetwork 
     vnetName: network.outputs.vnetName
@@ -72,6 +75,7 @@ module app_vm_02 'core/vms/vm-applications.bicep' = {
     adminPassword: vmPassword
     dataCollectionEndpointId: monitoring.outputs.dceId
     dataCollectionRuleId: monitoring.outputs.dcrId
+    securityDataCollectionRuleId: monitoring.outputs.secDcrId
     location: location
     networkResouceGroup: rgNameNetwork 
     vnetName: network.outputs.vnetName
@@ -87,5 +91,16 @@ module app_gw 'core/network/appgw.bicep' = {
     vm01Name: app_vm_01.outputs.vmName
     vm02Name: app_vm_02.outputs.vmName
     vnetName: network.outputs.vnetName
+  }
+}
+
+module alerts 'core/monitoring/alerts/alerts.bicep' = {
+  name: 'alerts'
+  scope: rg_observability
+  params: {
+    appgatewayId: app_gw.outputs.appGwId
+    applogsWorkspaceId: monitoring.outputs.appLogsWorkspaceId
+    emailAddress: emailAddress
+    location: location
   }
 }

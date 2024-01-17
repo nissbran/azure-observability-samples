@@ -83,7 +83,7 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
           name: 'TomcatLogFiles'
           format: 'text'
           filePatterns: [
-            'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\logs\\commons-daemon.*'
+            'C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\logs\\*.log'
           ]
           settings: {
             text: {

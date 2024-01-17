@@ -120,3 +120,4 @@ resource appgw 'Microsoft.Network/applicationGateways@2023-05-01' = {
 }
 
 output appGwUrl string = 'http://${publicIp.properties.ipAddress}'
+output appGwId string = appgw.id
