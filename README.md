@@ -5,5 +5,6 @@ Samples repo for different observability setups in azure.
 
 Links to the different setups:
 * [Azure Monitor for application vms](/samples/vm-application-monitoring/README.md)
+* [Azure Monitor for azure container apps](/samples/aca-application-monitoring/README.md)
 
-## Azure Monitor for application vms
+
