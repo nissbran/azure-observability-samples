@@ -1,0 +1,59 @@
+@hostname = localhost
+@port = 8081
+@host = http://{{hostname}}:{{port}}
+
+@apimGatewayApiUrl ={{$dotenv apimGatewayApiUrl}}
+@apimSubscriptionKey ={{$dotenv apimSubscriptionKey}}
+
+POST {{host}}/v1/credits
+content-type: application/json
+
+{
+    "name": "test",
+    "startDate": "2023-01-01"
+}
+
+###
+
+POST {{host}}/v1/credits/1ec6a606-5e73-45ae-9903-4a32ed87ff0c/transactions
+content-type: application/json
+Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
+
+{
+    "value": 10,
+    "currency": "SEK",
+    "transactionDate": "2023-02-06"
+}
+
+
+###
+POST {{apimGatewayApiUrl}}/credits
+content-type: application/json
+Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
+
+{
+    "name": "test",
+    "startDate": "2023-01-01"
+}
+
+###
+
+POST {{apimGatewayApiUrl}}/credits/190c783a-de7a-4e2d-bdf1-c15a9a3527c9/transactions
+content-type: application/json
+Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
+
+{
+    "value": 10,
+    "currency": "SEK",
+    "transactionDate": "2023-02-06"
+}
+
+###
+POST {{host}}/v1/credits/d5bd7eb9-e610-4fd4-8b36-83a6c198bfa6/transactions
+content-type: application/json
+
+{
+    "value": 10,
+    "currency": "USD",
+    "transactionDate": "2023-02-06"
+}

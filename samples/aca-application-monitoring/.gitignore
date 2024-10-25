@@ -6,11 +6,18 @@
 *.sln.ide/
 *.userprefs
 *.GhostDoc.xml
+*.bicepparam
+.vscode
 .vs
+.dapr
 
 # Outputs
 publish
 results
+
+# Docker env
+.env
+certs
 
 # Build related
 tools
@@ -20,12 +27,9 @@ tools
 [Oo]bj/
 [Pp]ackages/
 
-# Bicep
-*.bicepparam
-
-# local files
-.env
-appsettings.local.json
-
 # Apple directory
 .DS_Store
+
+# Terraform
+.terraform
+terraform.tfstate
