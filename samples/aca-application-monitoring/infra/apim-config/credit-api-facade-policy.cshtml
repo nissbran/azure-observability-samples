@@ -1,0 +1,16 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="credit-api-aca-backend" />
+        <rewrite-uri template="@("/v1/credits" + context.Operation.UrlTemplate)" copy-unmatched-params="false" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

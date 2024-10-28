@@ -1,0 +1,79 @@
+openapi: 3.0.1
+info:
+  title: Credit API Facade
+  description: 'A facade for the Credit API'
+  version: '1.0'
+paths:
+  /:
+    post:
+      summary: CreateCredit
+      description: Create a new credit
+      operationId: CreateCredit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Body'
+            example: ''
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.collection+json: { }
+  '/{id}/transactions':
+    post:
+      summary: AddTransaction
+      description: Add a new transaction to a credit
+      operationId: AddTransaction
+      parameters:
+        - name: id
+          in: path
+          description: The credit id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddTransactionRequest'
+            example: ''
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/vnd.collection+json: { }
+components:
+  schemas:
+    Body:
+      type: string
+    AddTransactionRequest:
+      required: [
+        "currency",
+        "value"
+      ]
+      type: object
+      properties:
+        value:
+          type: integer
+          format: int32
+        currency:
+          minLength: 1
+          type: string
+        transactionDate:
+          type: string
+          nullable: true
+  securitySchemes:
+    apiKeyHeader:
+      type: apiKey
+      name: api-key
+      in: header
+    apiKeyQuery:
+      type: apiKey
+      name: api-key
+      in: query
+security:
+  - apiKeyHeader: [ ]
+  - apiKeyQuery: [ ]

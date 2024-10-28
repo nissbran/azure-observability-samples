@@ -29,7 +29,7 @@ Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
 ###
 POST {{apimGatewayApiUrl}}/credits
 content-type: application/json
-Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
+api-key: {{apimSubscriptionKey}}
 
 {
     "name": "test",
@@ -40,7 +40,7 @@ Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
 
 POST {{apimGatewayApiUrl}}/credits/190c783a-de7a-4e2d-bdf1-c15a9a3527c9/transactions
 content-type: application/json
-Ocp-Apim-Subscription-Key: {{apimSubscriptionKey}}
+api-key: {{apimSubscriptionKey}}
 
 {
     "value": 10,

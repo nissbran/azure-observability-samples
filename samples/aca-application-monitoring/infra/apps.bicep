@@ -266,3 +266,130 @@ resource booking_processor_sb_assignment 'Microsoft.Authorization/roleAssignment
   }
 }
 
+// Azure API Management -------------------------------------------------------
+resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' existing = {
+  name: 'apim-${name}'
+}
+
+resource apimLogger 'Microsoft.ApiManagement/service/loggers@2023-09-01-preview' existing = {
+  name: 'appinsights-general-logger'
+  parent: apim
+}
+
+resource creditApiBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  name: 'credit-api-aca-backend'
+  parent: apim
+  properties: {
+    description: 'credit-api'
+    url: 'https://${credit_api.properties.configuration.ingress.fqdn}'
+    protocol: 'http'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+  }
+}
+
+resource creditApimApi 'Microsoft.ApiManagement/service/apis@2023-09-01-preview' = {
+  name: 'credit-api'
+  parent: apim
+  properties: {
+    displayName: 'Credit API'
+    path: 'credit-api'
+    apiType: 'http'
+    format: 'openapi+json'
+    protocols: [
+      'https'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    subscriptionRequired: true
+    value: loadTextContent('../src/dotnet/credit-api/Swagger/api-spec.json')
+  }
+}
+
+resource defaultCreditApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-09-01-preview' = {
+  name: 'policy'
+  parent: creditApimApi
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('apim-config/credit-api-policy.cshtml')
+  }
+  dependsOn: [
+    creditApiBackend
+  ]
+}
+
+resource apimSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-09-01-preview' = {
+  name: 'credit-api-subscription'
+  parent: apim
+  properties: {
+    allowTracing: true
+    displayName: 'Credit API Subscription'
+    scope: '/apis/${creditApimApi.id}'
+    state: 'active'
+  }
+}
+
+// Credit API Facade ----------------------------------------------------------
+resource creditApiFacade 'Microsoft.ApiManagement/service/apis@2023-09-01-preview' = {
+  name: 'credit-api-facade'
+  parent: apim
+  properties: {
+    displayName: 'Credit API Facade'
+    path: 'credits'
+    apiType: 'http'
+    format: 'openapi'
+    protocols: [
+      'https'
+    ]
+    subscriptionKeyParameterNames: {
+      header: 'api-key'
+      query: 'api-key'
+    }
+    apiRevision: 'initial'
+    value: loadTextContent('apim-config/credit-facade.yaml')
+  }
+}
+
+resource apimFacadeSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-09-01-preview' = {
+  name: 'credit-api-facade-subscription'
+  parent: apim
+  properties: {
+    allowTracing: true
+    displayName: 'Credit Facade API Subscription'
+    scope: '/apis/${creditApiFacade.id}'
+    state: 'active'
+  }
+}
+
+resource defaultCreditFacadeApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2023-09-01-preview' = {
+  name: 'policy'
+  parent: creditApiFacade
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('apim-config/credit-api-facade-policy.cshtml')
+  }
+  dependsOn: [
+    creditApiBackend
+  ]
+}
+
+resource facadeApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+  name: 'applicationinsights'
+  parent: creditApiFacade
+  properties: {
+    alwaysLog: 'allErrors'
+    httpCorrelationProtocol: 'W3C'
+    logClientIp: true
+    loggerId: apimLogger.id
+    metrics: true
+    verbosity: 'information'
+    sampling: {
+      samplingType: 'fixed'
+      percentage: 100
+    }
+  }
+}
