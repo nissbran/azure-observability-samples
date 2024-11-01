@@ -27,7 +27,8 @@ This demo is publish to Azure Container Apps.
 ```powershell
 $ENV:ACR="your_acr_name"
 az acr build --registry $ENV:ACR --image credits/credit-api:1.0 src/dotnet/credit-api/.
-az acr build --registry $ENV:ACR --image credits/booking-processor:1.0 src/dotnet/booking-processor/.
+az acr build --registry $ENV:ACR --image credits/booking-processor:1.0 src/dotnet/
+az acr build --registry $ENV:ACR --image credits/booking-api:1.0 src/dotnet/booking-api/.
 ```
 
 ## To run the Rest test client

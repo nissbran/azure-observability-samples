@@ -4,7 +4,8 @@ public class BookingMonth
 {
     public int DbId { get; init; }
     public string BookingId { get; init; }
-    public int Month { get; }
+    public Guid CreditId { get; init; }
+    public int Month { get; init; }
     public ICollection<Booking> Bookings { get; } = new List<Booking>();
     public int Total => Bookings.Sum(booking => booking.Value);
     public bool Closed { get; set; }
@@ -13,10 +14,11 @@ public class BookingMonth
     {
     }
     
-    public BookingMonth(string creditId, int month)
+    public BookingMonth(Guid creditId, int month)
     {
         Month = month;
         BookingId = $"{creditId}-{month}";
+        CreditId = creditId;
     }
 
     public void AddBooking(int value, string etag)

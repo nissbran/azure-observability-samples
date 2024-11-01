@@ -15,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\booking-api\BookingApi.csproj" />
       <ProjectReference Include="..\booking-processor\BookingProcessor.csproj" />
       <ProjectReference Include="..\credit-api\CreditApi.csproj" />
       <ProjectReference Include="..\DbSetup\DbSetup.csproj" />

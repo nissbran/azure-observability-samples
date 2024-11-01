@@ -19,6 +19,9 @@ resource appinsights 'Microsoft.Insights/components@2020-02-02' existing = {
 resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
   name: 'apim-${name}'
   location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
   sku: {
     name: skuName
     capacity: 1

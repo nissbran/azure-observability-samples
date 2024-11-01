@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "CreditApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+    "title": "CreditApi",
     "version": "1.0"
   },
   "paths": {
@@ -10,6 +10,7 @@
         "tags": [
           "CreditModule"
         ],
+        "operationId": "CreateCredit",
         "requestBody": {
           "content": {
             "application/json": {
@@ -21,8 +22,15 @@
           "required": true
         },
         "responses": {
-          "200": {
-            "description": "OK"
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateCreditResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -32,19 +40,28 @@
         "tags": [
           "CreditModule"
         ],
+        "operationId": "GetCredit",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetCreditResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -60,7 +77,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -90,7 +108,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -112,7 +131,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -161,6 +181,71 @@
           "startDate": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "CreateCreditResponse": {
+        "type": "object",
+        "properties": {
+          "creditId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GetCreditResponse": {
+        "type": "object",
+        "properties": {
+          "creditId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "interestRate": {
+            "type": "number",
+            "format": "double"
+          },
+          "currentMonth": {
+            "type": "string",
+            "format": "date"
+          },
+          "transactions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Transaction"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "Transaction": {
+        "required": [
+          "transactionDate",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "dbId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date"
           }
         },
         "additionalProperties": false

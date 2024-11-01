@@ -17,7 +17,7 @@ public class Credit
 
     public void AddTransaction(int value, DateOnly transactionDate)
     {
-        var newTransaction = new Transaction { Value = value, TransactionDate = transactionDate};
+        var newTransaction = new Transaction { TransactionId = Guid.NewGuid(), Value = value, TransactionDate = transactionDate};
         Transactions.Add(newTransaction);
         _newTransactions.Add(newTransaction);
     }

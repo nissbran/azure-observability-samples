@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace BookingProcessor.Data;
+namespace BookingApi.Data;
 
 public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbContext(options) 
 {
@@ -12,6 +12,8 @@ public class BookingDbContext(DbContextOptions<BookingDbContext> options) : DbCo
         {
             builder.HasKey(c => c.DbId);
             builder.Property(c => c.DbId).ValueGeneratedOnAdd().IsRequired();
+            builder.Property(c => c.CreditId).IsRequired();
+            builder.Property(c => c.Month).IsRequired();
             builder.HasMany(c => c.Bookings).WithOne().HasForeignKey("BookingMonthDbId").OnDelete(DeleteBehavior.Cascade).IsRequired();
             
             builder.Ignore(c => c.Total);

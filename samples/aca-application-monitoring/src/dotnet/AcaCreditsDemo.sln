@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspireHost.AppHost", "aspir
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DbSetup", "DbSetup\DbSetup.csproj", "{9E688F32-59C7-4CF6-9D20-79FEFA4D096C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookingApi", "booking-api\BookingApi.csproj", "{854C584B-0FEB-4A6F-98E0-DC58B8753071}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,5 +33,9 @@ Global
 		{9E688F32-59C7-4CF6-9D20-79FEFA4D096C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E688F32-59C7-4CF6-9D20-79FEFA4D096C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E688F32-59C7-4CF6-9D20-79FEFA4D096C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{854C584B-0FEB-4A6F-98E0-DC58B8753071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{854C584B-0FEB-4A6F-98E0-DC58B8753071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{854C584B-0FEB-4A6F-98E0-DC58B8753071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{854C584B-0FEB-4A6F-98E0-DC58B8753071}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

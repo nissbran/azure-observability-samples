@@ -32,8 +32,13 @@ public class BookingEventHandler
             return false;
         }
         
-        var creditId = startBooking.CreditId;
-        Baggage.SetBaggage("creditId", creditId);
+        if (!Guid.TryParse(startBooking.CreditId, out var creditId))
+        {
+            _logger.LogError("Invalid credit id {CreditId}", startBooking.CreditId);
+            return false;
+        }
+        
+        Baggage.SetBaggage("creditId", creditId.ToString());
         Activity.Current?.AddTag("creditId", creditId);
         
         using var _ = _logger.BeginScope(new Dictionary<string, object> { { "CreditId",creditId } });
@@ -42,7 +47,7 @@ public class BookingEventHandler
 
         using (var context = _contextFactory.CreateDbContext())
         {
-            context.BookingMonths.Add(new BookingMonth(startBooking.CreditId, 1));
+            context.BookingMonths.Add(new BookingMonth(creditId, 1));
             await context.SaveChangesAsync();
         }
 
@@ -61,8 +66,13 @@ public class BookingEventHandler
             return false;
         }
         
-        var creditId = booking.CreditId;
-        Baggage.SetBaggage("creditId", creditId);
+        if (!Guid.TryParse(booking.CreditId, out var creditId))
+        {
+            _logger.LogError("Invalid credit id {CreditId}", booking.CreditId);
+            return false;
+        }
+
+        Baggage.SetBaggage("creditId", creditId.ToString());
         Activity.Current?.AddTag("creditId", creditId);
         using var _ = _logger.BeginScope(new Dictionary<string, object> { { "CreditId",creditId } });
         
@@ -72,8 +82,13 @@ public class BookingEventHandler
         using (var context = _contextFactory.CreateDbContext())
         {
             var bookingMonth = await context.BookingMonths.Include(bm => bm.Bookings).FirstOrDefaultAsync(bm => bm.BookingId == $"{creditId}-{month}");
-            bookingMonth ??= new BookingMonth(creditId, month);
-        
+            
+            if (bookingMonth == null)
+            {
+                bookingMonth = new BookingMonth(creditId, month);
+                context.BookingMonths.Add(bookingMonth);
+            }
+            
             if (bookingMonth.Closed)
             {
                 _logger.LogError("Tried to add transaction to closed month {@Booking}, sending to manual handling", booking);
@@ -107,8 +122,13 @@ public class BookingEventHandler
             return false;
         }
         
-        var creditId = closeMonth.CreditId;
-        Baggage.SetBaggage("creditId", creditId);
+        if (!Guid.TryParse(closeMonth.CreditId, out var creditId))
+        {
+            _logger.LogError("Invalid credit id {CreditId}", closeMonth.CreditId);
+            return false;
+        }
+        
+        Baggage.SetBaggage("creditId", creditId.ToString());
         Activity.Current?.AddTag("creditId", creditId);
         using var _ = _logger.BeginScope(new Dictionary<string, object> { { "CreditId",creditId } });
             

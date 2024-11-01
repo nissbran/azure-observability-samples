@@ -10,6 +10,20 @@ public class CreateCreditRequest
     public string? StartDate { get; set; }
 }
 
+public class CreateCreditResponse(Guid creditId)
+{
+    public Guid CreditId { get; set; } = creditId;
+}
+
+public class GetCreditResponse(Credit credit)
+{
+    public Guid CreditId { get; set; } = credit.CreditId;
+    public string? Name { get; set; } = credit.Name;
+    public decimal InterestRate { get; set; } = credit.InterestRate;
+    public DateOnly CurrentMonth { get; set; } = credit.CurrentMonth;
+    public ICollection<Transaction> Transactions { get; set; } = credit.Transactions;
+}
+
 public class AddTransactionRequest
 {
     [Required]
@@ -23,17 +37,4 @@ public class AddTransactionRequest
 public class GetTransactionsResponse
 {
     public int Count { get; set; }
-}
-
-
-public class GetInterestRateResponse
-{
-    [JsonPropertyName("interest_rate")]
-    public decimal InterestRate { get; set; }
-}
-
-public class GetCurrencyConversionRateResponse
-{
-    [JsonPropertyName("conversion_rate")]
-    public decimal ConversionRate { get; set; }
 }

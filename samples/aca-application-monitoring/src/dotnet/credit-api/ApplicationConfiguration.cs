@@ -1,7 +1,11 @@
-﻿using CreditApi.Data;
+﻿using System.Globalization;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
+using CreditApi.Data;
 using CreditApi.Messaging;
 using CreditApi.Modules.Credit;
 using CreditApi.Telemetry;
+using Microsoft.AspNetCore.RateLimiting;
 using Serilog;
 
 namespace CreditApi;
@@ -25,19 +29,42 @@ internal static class ApplicationConfiguration
         
         builder.AddSqlServerDbContext<CreditDbContext>("credit-db");
         builder.AddAzureServiceBusClient("messaging");
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.OnRejected = (context, _) =>
+            {
+                if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+                {
+                    context.HttpContext.Response.Headers.RetryAfter = ((int)retryAfter.TotalSeconds).ToString(NumberFormatInfo.InvariantInfo);
+                }
+
+                context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.");
+
+                return new ValueTask();
+            };
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddFixedWindowLimiter("FixedWindow", rateLimitOptions =>
+            {
+                rateLimitOptions.QueueLimit = 2;
+                rateLimitOptions.AutoReplenishment = true;
+                rateLimitOptions.Window = TimeSpan.FromSeconds(30);
+                rateLimitOptions.PermitLimit = 5;
+                rateLimitOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+            });
+        });
         builder.Services.AddSingleton<IBookingEventSender, ServiceBusBookingEventSender>();
 
         builder.Services.AddCreditModule();
-        
         
         return builder.Build();
     }
 
     public static WebApplication ConfigurePipeline(this WebApplication app)
     {
+        app.UseSwagger();
         if (app.Environment.IsDevelopment())
         {
-            app.UseSwagger();
             app.UseSwaggerUI();
         }
 
@@ -46,6 +73,8 @@ internal static class ApplicationConfiguration
         {
             app.UseSerilogRequestLogging();
         }
+
+        app.UseRateLimiter();
         
         CreditModule.MapRoutes(app);
         

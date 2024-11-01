@@ -19,6 +19,9 @@ builder.AddProject<Projects.BookingProcessor>("booking-processor")
        .WithReference(serviceBus)
        .WithReference(bookingDb);
 
+builder.AddProject<Projects.BookingApi>("booking-api")
+       .WithReference(bookingDb);
+
 builder.AddProject<Projects.DbSetup>("db-setup")
        .WithReference(creditDb)
        .WithReference(bookingDb);

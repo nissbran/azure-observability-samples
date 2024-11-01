@@ -4,8 +4,9 @@ param sqlAdminLogin string = 'adminlogin'
 @secure()
 param sqlAdminPassword string
 
-var creditApiVersion = '1.8'
-var bookingProcessorVersion = '1.6'
+param creditApiVersion string
+param bookingProcessorVersion string
+param bookingApiVersion string
 
 var acrPullRole = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
 var sbDataOwnerRole = resourceId('Microsoft.Authorization/roleDefinitions', '090c5cfd-751d-490a-894a-3ce6f1109419')
@@ -46,9 +47,9 @@ resource appinsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: 'appinsights${name}'
 }
 
-// Credit api -----------------------------------------------------------------
-resource credit_api 'Microsoft.App/containerApps@2024-03-01' = {
-  name: 'credit-api'
+// Credit api 1 ---------------------------------------------------------------
+resource credit_api_1 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'credit-api-1'
   location: location
   identity: {
     type: 'SystemAssigned'
@@ -87,11 +88,11 @@ resource credit_api 'Microsoft.App/containerApps@2024-03-01' = {
       containers: [
         {
           image: '${acr.name}.azurecr.io/credits/credit-api:${creditApiVersion}'
-          name: 'credit-api'
+          name: 'credit-api-1'
           env: [
             {
               name: 'OTEL_SERVICE_NAME'
-              value: 'credit-api'
+              value: 'credit-api-1'
             }
             {
               name: 'USE_CONSOLE_LOG_OUTPUT'
@@ -102,19 +103,19 @@ resource credit_api 'Microsoft.App/containerApps@2024-03-01' = {
               value: 'true'
             }
             {
-              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING' 
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               secretRef: 'appinsights-connection-string'
             }
             {
-              name: 'ConnectionStrings__credit-db' 
+              name: 'ConnectionStrings__credit-db'
               secretRef: 'db-connection-string'
             }
             {
-              name: 'ConnectionStrings__messaging' 
+              name: 'ConnectionStrings__messaging'
               value: '${sb_ns.name}.servicebus.windows.net'
             }
           ]
-          resources:{
+          resources: {
             cpu: json('.25')
             memory: '.5Gi'
           }
@@ -129,20 +130,121 @@ resource credit_api 'Microsoft.App/containerApps@2024-03-01' = {
   }
 }
 
-resource credit_api_pull_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(acr.id, credit_api.name, acrPullRole)
+resource credit_api_pull_assignment_1 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, credit_api_1.name, acrPullRole)
   properties: {
     roleDefinitionId: acrPullRole
-    principalId: credit_api.identity.principalId
+    principalId: credit_api_1.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
 
-resource credit_api_sb_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(sb_ns.id, credit_api.name, sbDataOwnerRole)
+resource credit_api_sb_assignment_1 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(sb_ns.id, credit_api_1.name, sbDataOwnerRole)
   properties: {
     roleDefinitionId: sbDataOwnerRole
-    principalId: credit_api.identity.principalId
+    principalId: credit_api_1.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+// Credit api 2 ---------------------------------------------------------------
+resource credit_api_2 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'credit-api-2'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: aca_env.id
+    configuration: {
+      activeRevisionsMode: 'single'
+      ingress: {
+        external: true
+        targetPort: 8080
+      }
+      secrets: [
+        {
+          name: 'registry-password'
+          value: acr.listCredentials().passwords[0].value
+        }
+        {
+          name: 'db-connection-string'
+          value: 'Data Source=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${creditDb.name};User Id=${sqlAdminLogin}@${sqlServer.properties.fullyQualifiedDomainName};Password=${sqlAdminPassword};'
+        }
+        {
+          name: 'appinsights-connection-string'
+          value: appinsights.properties.ConnectionString
+        }
+      ]
+      registries: [
+        {
+          username: acr.name
+          passwordSecretRef: 'registry-password'
+          server: acr.properties.loginServer
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          image: '${acr.name}.azurecr.io/credits/credit-api:${creditApiVersion}'
+          name: 'credit-api-2'
+          env: [
+            {
+              name: 'OTEL_SERVICE_NAME'
+              value: 'credit-api-2'
+            }
+            {
+              name: 'USE_CONSOLE_LOG_OUTPUT'
+              value: 'true'
+            }
+            {
+              name: 'USE_SERILOG_FOR_OTEL'
+              value: 'true'
+            }
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              secretRef: 'appinsights-connection-string'
+            }
+            {
+              name: 'ConnectionStrings__credit-db'
+              secretRef: 'db-connection-string'
+            }
+            {
+              name: 'ConnectionStrings__messaging'
+              value: '${sb_ns.name}.servicebus.windows.net'
+            }
+          ]
+          resources: {
+            cpu: json('.25')
+            memory: '.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 1
+        rules: []
+      }
+    }
+  }
+}
+
+resource credit_api_pull_assignment_2 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, credit_api_2.name, acrPullRole)
+  properties: {
+    roleDefinitionId: acrPullRole
+    principalId: credit_api_2.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
+resource credit_api_sb_assignment_2 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(sb_ns.id, credit_api_2.name, sbDataOwnerRole)
+  properties: {
+    roleDefinitionId: sbDataOwnerRole
+    principalId: credit_api_2.identity.principalId
     principalType: 'ServicePrincipal'
   }
 }
@@ -203,19 +305,19 @@ resource booking_processor 'Microsoft.App/containerApps@2024-03-01' = {
               value: 'true'
             }
             {
-              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING' 
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
               secretRef: 'appinsights-connection-string'
             }
             {
-              name: 'ConnectionStrings__booking-db' 
+              name: 'ConnectionStrings__booking-db'
               secretRef: 'db-connection-string'
             }
             {
-              name: 'ConnectionStrings__messaging' 
+              name: 'ConnectionStrings__messaging'
               value: '${sb_ns.name}.servicebus.windows.net'
             }
           ]
-          resources:{
+          resources: {
             cpu: json('.25')
             memory: '.5Gi'
           }
@@ -266,6 +368,102 @@ resource booking_processor_sb_assignment 'Microsoft.Authorization/roleAssignment
   }
 }
 
+// Booking api -----------------------------------------------------------------
+resource booking_api 'Microsoft.App/containerApps@2024-03-01' = {
+  name: 'booking-api'
+  location: location
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties: {
+    managedEnvironmentId: aca_env.id
+    configuration: {
+      activeRevisionsMode: 'single'
+      ingress: {
+        external: true
+        targetPort: 8080
+      }
+      secrets: [
+        {
+          name: 'registry-password'
+          value: acr.listCredentials().passwords[0].value
+        }
+        {
+          name: 'db-connection-string'
+          value: 'Data Source=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${bookingDb.name};User Id=${sqlAdminLogin}@${sqlServer.properties.fullyQualifiedDomainName};Password=${sqlAdminPassword};'
+        }
+        {
+          name: 'appinsights-connection-string'
+          value: appinsights.properties.ConnectionString
+        }
+      ]
+      registries: [
+        {
+          username: acr.name
+          passwordSecretRef: 'registry-password'
+          server: acr.properties.loginServer
+        }
+      ]
+    }
+    template: {
+      containers: [
+        {
+          image: '${acr.name}.azurecr.io/credits/booking-api:${bookingApiVersion}'
+          name: 'booking-api'
+          env: [
+            {
+              name: 'OTEL_SERVICE_NAME'
+              value: 'booking-api'
+            }
+            {
+              name: 'USE_CONSOLE_LOG_OUTPUT'
+              value: 'true'
+            }
+            {
+              name: 'USE_SERILOG_FOR_OTEL'
+              value: 'true'
+            }
+            {
+              name: 'Authority'
+              value: 'https://login.microsoftonline.com/${subscription().tenantId}'
+            }
+            {
+              name: 'Audience'
+              value: 'api://booking-api'
+            }
+            {
+              name: 'APPLICATIONINSIGHTS_CONNECTION_STRING'
+              secretRef: 'appinsights-connection-string'
+            }
+            {
+              name: 'ConnectionStrings__booking-db'
+              secretRef: 'db-connection-string'
+            }
+          ]
+          resources: {
+            cpu: json('.25')
+            memory: '.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 1
+        rules: []
+      }
+    }
+  }
+}
+
+resource booking_api_pull_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(acr.id, booking_api.name, acrPullRole)
+  properties: {
+    roleDefinitionId: acrPullRole
+    principalId: booking_api.identity.principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+
 // Azure API Management -------------------------------------------------------
 resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' existing = {
   name: 'apim-${name}'
@@ -276,12 +474,107 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2023-09-01-preview'
   parent: apim
 }
 
-resource creditApiBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
-  name: 'credit-api-aca-backend'
+resource creditApiBackend1 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  name: 'credit-api-aca-backend1'
   parent: apim
   properties: {
     description: 'credit-api'
-    url: 'https://${credit_api.properties.configuration.ingress.fqdn}'
+    url: 'https://${credit_api_1.properties.configuration.ingress.fqdn}'
+    protocol: 'http'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+    circuitBreaker: {
+      rules: [
+        {
+          failureCondition: {
+            count: 3
+            errorReasons: [
+              'Server errors'
+            ]
+            interval: 'PT1M'
+            statusCodeRanges: [
+              {
+                min: 429
+                max: 429
+              }
+            ]
+          }
+          name: 'credit-api-circuit-breaker'
+          tripDuration: 'PT1M'
+          acceptRetryAfter: true // respects the Retry-After header
+        }
+      ]
+    }
+  }
+}
+
+resource creditApiBackend2 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  name: 'credit-api-aca-backend2'
+  parent: apim
+  properties: {
+    description: 'credit-api'
+    url: 'https://${credit_api_2.properties.configuration.ingress.fqdn}'
+    protocol: 'http'
+    tls: {
+      validateCertificateChain: true
+      validateCertificateName: true
+    }
+    circuitBreaker: {
+      rules: [
+        {
+          failureCondition: {
+            count: 1
+            errorReasons: [
+              'Server errors'
+            ]
+            interval: 'PT1M'
+            statusCodeRanges: [
+              {
+                min: 429
+                max: 429
+              }
+            ]
+          }
+          name: 'credit-api-circuit-breaker'
+          tripDuration: 'PT1M'
+          acceptRetryAfter: false // respects the Retry-After header
+        }
+      ]
+    }
+  }
+}
+
+resource creditApiBackendPool 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  name: 'credit-api-aca-backend-pool'
+  parent: apim
+  properties: {
+    type: 'Pool'
+    description: 'credit api backend pool'
+    pool: {
+      services:[
+        {
+          id: creditApiBackend1.id
+          priority: 1
+          weight: 50
+        }
+        {
+          id: creditApiBackend2.id
+          priority: 1
+          weight: 50
+        }
+      ]
+    }
+  }
+}
+
+resource bookingApiBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+  name: 'booking-api-aca-backend'
+  parent: apim
+  properties: {
+    description: 'booking-api'
+    url: 'https://${booking_api.properties.configuration.ingress.fqdn}'
     protocol: 'http'
     tls: {
       validateCertificateChain: true
@@ -306,7 +599,7 @@ resource creditApimApi 'Microsoft.ApiManagement/service/apis@2023-09-01-preview'
       query: 'api-key'
     }
     subscriptionRequired: true
-    value: loadTextContent('../src/dotnet/credit-api/Swagger/api-spec.json')
+    value: loadTextContent('../src/dotnet/credit-api/Swagger/CreditApi.json')
   }
 }
 
@@ -318,7 +611,7 @@ resource defaultCreditApiPolicy 'Microsoft.ApiManagement/service/apis/policies@2
     value: loadTextContent('apim-config/credit-api-policy.cshtml')
   }
   dependsOn: [
-    creditApiBackend
+    creditApiBackendPool
   ]
 }
 
@@ -354,6 +647,41 @@ resource creditApiFacade 'Microsoft.ApiManagement/service/apis@2023-09-01-previe
   }
 }
 
+resource bookingOperation 'Microsoft.ApiManagement/service/apis/operations@2023-09-01-preview' = {
+  name: 'GetBookings'
+  parent: creditApiFacade
+  properties: {
+    displayName: 'GetBookings'
+    method: 'GET'
+    urlTemplate: '/{id}/bookings'
+    templateParameters: [
+      {
+        name: 'id'
+        type: 'string'
+        required: true
+      }
+    ]
+    request: {}
+    // responses: [
+    //   {
+    //     statusCode: 200
+    //     description: 'Success'
+    //     representations: [
+    //       {
+    //         contentType: 'application/json'
+    //         examples: [
+    //           {
+    //             name: 'example'
+    //             value: loadTextContent('apim-config/booking-example.json')
+    //           }
+    //         ]
+    //       }
+    //     ]
+    //   }
+    // ]
+  }
+}
+
 resource apimFacadeSubscription 'Microsoft.ApiManagement/service/subscriptions@2023-09-01-preview' = {
   name: 'credit-api-facade-subscription'
   parent: apim
@@ -373,11 +701,23 @@ resource defaultCreditFacadeApiPolicy 'Microsoft.ApiManagement/service/apis/poli
     value: loadTextContent('apim-config/credit-api-facade-policy.cshtml')
   }
   dependsOn: [
-    creditApiBackend
+    creditApiBackendPool
   ]
 }
 
-resource facadeApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = if (!empty(apimLogger.name)) {
+resource creditFacadeBookingsApiPolicy 'Microsoft.ApiManagement/service/apis/operations/policies@2023-09-01-preview' = {
+  name: 'policy'
+  parent: bookingOperation
+  properties: {
+    format: 'rawxml'
+    value: loadTextContent('apim-config/credit-api-facade-bookings-policy.cshtml')
+  }
+  dependsOn: [
+    bookingApiBackend
+  ]
+}
+
+resource facadeApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@2022-08-01' = {
   name: 'applicationinsights'
   parent: creditApiFacade
   properties: {
@@ -391,5 +731,26 @@ resource facadeApiDiagnostics 'Microsoft.ApiManagement/service/apis/diagnostics@
       samplingType: 'fixed'
       percentage: 100
     }
+  }
+}
+
+// Health check ----------------------------------------------------------------
+resource creditApi1HealthCheckUrl 'Microsoft.ApiManagement/service/namedValues@2023-09-01-preview' = {
+  name: 'credit-api-1-health-check-url'
+  parent: apim
+  properties: {
+    displayName: 'credit-api-1-health-check-url'
+    secret: false
+    value: 'https://${credit_api_1.properties.configuration.ingress.fqdn}/healthz'
+  }
+}
+
+resource creditApi2HealthCheckUrl 'Microsoft.ApiManagement/service/namedValues@2023-09-01-preview' = {
+  name: 'credit-api-2-health-check-url'
+  parent: apim
+  properties: {
+    displayName: 'credit-api-2-health-check-url'
+    secret: false
+    value: 'https://${credit_api_2.properties.configuration.ingress.fqdn}/healthz'
   }
 }

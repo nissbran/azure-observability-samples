@@ -14,10 +14,11 @@ public class StartBookingEvent(string creditId) : CreditIntegrationEvent(creditI
     public override string Type => nameof(StartBookingEvent);
 }
 
-public class BookingEvent(string creditId, int value, string date) : CreditIntegrationEvent(creditId)
+public class BookingEvent(string creditId, int value, string date, string etag) : CreditIntegrationEvent(creditId)
 {
     public int Value { get; } = value;
     public string Date { get; } = date;
+    public string ETag { get; } = etag;
     public override string Type => nameof(BookingEvent);
 }
 

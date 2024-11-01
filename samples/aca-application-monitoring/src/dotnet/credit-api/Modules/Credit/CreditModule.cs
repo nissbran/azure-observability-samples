@@ -10,13 +10,19 @@ public static class CreditModule
 {
     public static void MapRoutes(IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("v1/credits");
+        var group = app.MapGroup("v1/credits")
+            .WithOpenApi();
 
-        group.MapPost("", CreateCredit);
-        group.MapGet("{id}", GetCredit);
-        group.MapPost("{id}/transactions", AddTransaction);
-        group.MapGet("{id}/transactions", GetTransactions);
-        group.MapPut("{id}/close-month", CloseMonth);
+        group.MapPost("", CreateCredit)
+            .WithName("CreateCredit")
+            .RequireRateLimiting("FixedWindow")
+            .Produces<CreateCreditResponse>(201);
+        group.MapGet("{id:guid}", GetCredit)
+            .WithName("GetCredit")
+            .Produces<GetCreditResponse>(200);
+        group.MapPost("{id:guid}/transactions", AddTransaction);
+        group.MapGet("{id:guid}/transactions", GetTransactions);
+        group.MapPut("{id:guid}/close-month", CloseMonth);
     }
 
     private static async Task<IResult> CreateCredit(CreateCreditRequest request, 
@@ -41,31 +47,28 @@ public static class CreditModule
         
         metrics.IncrementCreditsCreated();
         
-        return TypedResults.Created($"v1/credits/{newCredit.CreditId}", new
-        {
-            CreditId = newCredit.CreditId
-        });
+        return TypedResults.Created($"v1/credits/{newCredit.CreditId}", new CreateCreditResponse(newCredit.CreditId));
     }
 
-    private static async Task<IResult> GetCredit(string id, CreditDbContext dbContext)
+    private static async Task<IResult> GetCredit(Guid id, CreditDbContext dbContext)
     {
-        Baggage.SetBaggage("creditId", id);
+        Baggage.SetBaggage("creditId", id.ToString());
         Activity.Current?.AddTag("creditId", id);
         
-        var credit = await dbContext.Credits.Where(c => c.CreditId == Guid.Parse(id)).FirstOrDefaultAsync();
+        var credit = await dbContext.Credits.Where(c => c.CreditId == id).Include(c => c.Transactions).FirstOrDefaultAsync();
         
         if (credit == null)
             return TypedResults.NotFound();
         
-        return TypedResults.Ok(credit);
+        return TypedResults.Ok(new GetCreditResponse(credit));
     }
     
-    private static async Task<IResult> AddTransaction(string id, AddTransactionRequest request, IBookingEventSender eventSender, CreditMetrics metrics, CreditDbContext dbContext)
+    private static async Task<IResult> AddTransaction(Guid id, AddTransactionRequest request, IBookingEventSender eventSender, CreditMetrics metrics, CreditDbContext dbContext)
     {
-        Baggage.SetBaggage("creditId", id);
+        Baggage.SetBaggage("creditId", id.ToString());
         Activity.Current?.AddTag("creditId", id);
         
-        var credit = await dbContext.Credits.Where(c => c.CreditId == Guid.Parse(id)).FirstOrDefaultAsync();
+        var credit = await dbContext.Credits.Where(c => c.CreditId ==id).FirstOrDefaultAsync();
         
         if (credit == null)
             return TypedResults.NotFound();
@@ -80,18 +83,18 @@ public static class CreditModule
         {
             metrics.AddTransactionValue(transaction.Value, "SEK");
             
-            await eventSender.SendAsync(new BookingEvent(credit.CreditId.ToString(), transaction.Value, transactionDate.ToString("yyyy-MM-dd")), CancellationToken.None);
+            await eventSender.SendAsync(new BookingEvent(credit.CreditId.ToString(), transaction.Value, transactionDate.ToString("yyyy-MM-dd"), transaction.TransactionId.ToString()), CancellationToken.None);
         }
         
         return TypedResults.Created();
     }
     
-    private static async Task<IResult> GetTransactions(string id, CreditDbContext dbContext)
+    private static async Task<IResult> GetTransactions(Guid id, CreditDbContext dbContext)
     {
-        Baggage.SetBaggage("creditId", id);
+        Baggage.SetBaggage("creditId", id.ToString());
         Activity.Current?.AddTag("creditId", id);
         
-        var credit = await dbContext.Credits.Where(c => c.CreditId == Guid.Parse(id)).Include(credit => credit.Transactions).FirstOrDefaultAsync();
+        var credit = await dbContext.Credits.Where(c => c.CreditId == id).Include(credit => credit.Transactions).FirstOrDefaultAsync();
         
         if (credit == null)
             return TypedResults.NotFound();
@@ -99,12 +102,12 @@ public static class CreditModule
         return TypedResults.Ok(new GetTransactionsResponse { Count = credit.Transactions.Count });
     }
     
-    private static async Task<IResult> CloseMonth(string id, CreditDbContext dbContext, IBookingEventSender eventSender)
+    private static async Task<IResult> CloseMonth(Guid id, CreditDbContext dbContext, IBookingEventSender eventSender)
     {
-        Baggage.SetBaggage("creditId", id);
+        Baggage.SetBaggage("creditId", id.ToString());
         Activity.Current?.AddTag("creditId", id);
         
-        var credit = await dbContext.Credits.Where(c => c.CreditId == Guid.Parse(id)).FirstOrDefaultAsync();
+        var credit = await dbContext.Credits.Where(c => c.CreditId == id).FirstOrDefaultAsync();
         
         if (credit == null)
             return TypedResults.NotFound();

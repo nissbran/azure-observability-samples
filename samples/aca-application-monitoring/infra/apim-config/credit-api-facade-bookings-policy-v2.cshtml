@@ -1,0 +1,23 @@
+<policies>
+    <inbound>
+        <base />
+        <set-backend-service backend-id="booking-api-aca-backend" />
+        <rewrite-uri template="/bookings/{id}" copy-unmatched-params="false" />
+        <set-query-parameter name="api-version" exists-action="override">
+            <value>2024-11-04</value>
+        </set-query-parameter>
+        <authentication-managed-identity resource="api://booking-api" output-token-variable-name="msi-access-token" ignore-error="false" />
+        <set-header name="Authorization" exists-action="override">
+            <value>@("Bearer " + (string)context.Variables["msi-access-token"])</value>
+        </set-header>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

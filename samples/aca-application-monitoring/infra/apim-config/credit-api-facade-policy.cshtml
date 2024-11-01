@@ -1,7 +1,7 @@
 <policies>
     <inbound>
         <base />
-        <set-backend-service backend-id="credit-api-aca-backend" />
+        <set-backend-service backend-id="credit-api-aca-backend-pool" />
         <rewrite-uri template="@("/v1/credits" + context.Operation.UrlTemplate)" copy-unmatched-params="false" />
     </inbound>
     <backend>

@@ -1,5 +1,4 @@
 ﻿using Azure.Monitor.OpenTelemetry.Exporter;
-using CreditApi.Modules.Credit;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -9,7 +8,7 @@ using Serilog.Formatting.Compact;
 using Serilog.Sinks.OpenTelemetry;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace CreditApi.Telemetry;
+namespace BookingApi.Telemetry;
 
 internal static class ObservabilityConfiguration
 {
@@ -158,7 +157,6 @@ internal static class ObservabilityConfiguration
 
                 metricsBuilder
                     .SetResourceBuilder(resourceBuilder)
-                    .AddCreditMetrics()
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
                     .AddAspNetCoreInstrumentation();

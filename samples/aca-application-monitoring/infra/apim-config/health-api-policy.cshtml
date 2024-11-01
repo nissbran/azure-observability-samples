@@ -1,0 +1,36 @@
+<policies>
+    <inbound>
+        <base />
+        <send-request mode="new" response-variable-name="credit-api-1-response" timeout="20" ignore-error="true">
+            <set-url>{{credit-api-1-health-check-url}}</set-url>
+            <set-method>GET</set-method>
+        </send-request>
+        <send-request mode="new" response-variable-name="credit-api-2-response" timeout="20" ignore-error="true">
+            <set-url>{{credit-api-2-health-check-url}}</set-url>
+            <set-method>GET</set-method>
+        </send-request>
+
+        <choose>
+            <when condition="@(((IResponse)context.Variables["credit-api-1-response"]).StatusCode == 503 || 
+                               ((IResponse)context.Variables["credit-api-2-response"]).StatusCode == 503)">
+                <return-response>
+                    <set-status code="503" reason="Service Unavailable" />
+                </return-response>
+            </when>
+            <otherwise>
+                <return-response>
+                    <set-status code="200" reason="OK" />
+                </return-response>
+            </otherwise>
+        </choose>
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>
