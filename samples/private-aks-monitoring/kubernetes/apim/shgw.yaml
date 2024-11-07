@@ -1,0 +1,115 @@
+# NOTE: Before deploying to a production environment, please review the documentation -> https://aka.ms/self-hosted-gateway-production
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apim-gateway-env
+  labels:
+    app: apim-gateway
+data:
+  config.service.endpoint: "<APIM_CONFIGURATION_ENDPOINT>"
+  neighborhood.host: "aks-instance-discovery"
+  observability.opentelemetry.enabled: "true"
+  observability.opentelemetry.collector.uri: "http://otel-collector-apim:4317"
+  telemetry.logs.std: "json"
+  runtime.deployment.artifact.source: "Azure Portal"
+  runtime.deployment.mechanism: "YAML"
+  runtime.deployment.orchestrator.type: "Kubernetes"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apim-gateway
+  labels:
+    app: apim-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: apim-gateway
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 25%
+  template:
+    metadata:
+      labels:
+        app: apim-gateway
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+      - name: apim-gateway
+        image: mcr.microsoft.com/azure-api-management/gateway:v2
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8081
+          # Container port used for rate limiting to discover instances
+        - name: rate-limit-dc
+          protocol: UDP
+          containerPort: 4290
+          # Container port used for instances to send heartbeats to each other
+        - name: dc-heartbeat
+          protocol: UDP
+          containerPort: 4291
+        readinessProbe:
+          httpGet:
+            path: /status-0123456789abcdef
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 0
+          periodSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+        env:
+        - name: config.service.auth
+          valueFrom:
+            secretKeyRef:
+              name: aks-token
+              key: value
+        envFrom:
+        - configMapRef:
+            name: aks-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apim-gateway-live-traffic
+  labels:
+    app: apim-gateway
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  - name: https
+    port: 443
+    targetPort: 8081
+  selector:
+    app: apim-gateway
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apim-gateway-instance-discovery
+  labels:
+    app: apim-gateway
+  annotations:
+    azure.apim.kubernetes.io/notes: "Headless service being used for instance discovery of self-hosted gateway"
+spec:
+  clusterIP: None
+  type: ClusterIP
+  ports:
+  - name: rate-limit-discovery
+    port: 4290
+    targetPort: rate-limit-dc
+    protocol: UDP
+  - name: discovery-heartbeat
+    port: 4291
+    targetPort: dc-heartbeat
+    protocol: UDP
+  selector:
+    app: apim-gateway
