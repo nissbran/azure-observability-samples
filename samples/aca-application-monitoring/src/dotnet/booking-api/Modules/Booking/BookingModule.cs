@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using BookingApi.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace BookingApi.Modules.Booking;
 
@@ -34,7 +33,7 @@ public static class BookingModule
             .AsNoTracking()
             .ToListAsync();
 
-        if (bookings.IsNullOrEmpty())
+        if (!bookings.Any())
         {
             return TypedResults.NotFound();
         }
@@ -51,7 +50,7 @@ public static class BookingModule
             .AsNoTracking()
             .ToListAsync();
 
-        if (bookings.IsNullOrEmpty())
+        if (!bookings.Any())
         {
             return TypedResults.NotFound();
         }

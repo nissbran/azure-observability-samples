@@ -9,7 +9,10 @@ public class IgnoredEndpointsLogFilter : ILogEventFilter
     {
         if (logEvent.Properties.TryGetValue("RequestPath", out var requestPath))
         {
-            if (requestPath.ToString().Contains("/metrics") || requestPath.ToString().Contains("/healthz"))
+            if (requestPath.ToString().Contains("/metrics") || 
+                requestPath.ToString().Contains("/healthz") ||
+                requestPath.ToString().Contains("/scalar") ||
+                requestPath.ToString().Contains("/openapi"))
                 return false;
         }
 

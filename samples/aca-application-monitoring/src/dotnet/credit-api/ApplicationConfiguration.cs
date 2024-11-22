@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Security.Claims;
 using System.Threading.RateLimiting;
 using CreditApi.Data;
 using CreditApi.Messaging;
@@ -31,7 +30,7 @@ internal static class ApplicationConfiguration
         builder.AddAzureServiceBusClient("messaging");
         builder.Services.AddRateLimiter(options =>
         {
-            options.OnRejected = (context, _) =>
+            options.OnRejected = (context, token) => 
             {
                 if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
                 {
@@ -39,7 +38,7 @@ internal static class ApplicationConfiguration
                 }
 
                 context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
-                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.");
+                context.HttpContext.Response.WriteAsync("Too many requests. Please try again later.", cancellationToken: token);
 
                 return new ValueTask();
             };

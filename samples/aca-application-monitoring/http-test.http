@@ -5,6 +5,9 @@
 
 @apimGatewayApiUrl ={{$dotenv apimGatewayApiUrl}}
 @apimSubscriptionKey ={{$dotenv apimSubscriptionKey}}
+@tenantId ={{$dotenv tenantId}}
+@clientId ={{$dotenv clientId}}
+@clientSecret ={{$dotenv clientSecret}}
 
 ### 
 # @name creditResponse
@@ -123,3 +126,19 @@ GET {{apimGatewayApiUrl}}/bookings-proxy/bookings/{{creditId}}?api-version=2024-
 content-type: application/json
 api-key: {{apimSubscriptionKey}}
 
+###
+# @name token
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecret}}&scope=api://booking-api/.default
+
+### Get token
+@authToken = {{token.response.body.$.access_token}}
+
+###
+
+GET {{apimGatewayApiUrl}}/credits/{{creditId}}/secured-bookings
+content-type: application/json
+Authorization: Bearer {{authToken}}
+api-key: {{apimSubscriptionKey}}
