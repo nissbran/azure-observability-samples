@@ -17,22 +17,23 @@ if (builder.ExecutionContext.IsPublishMode)
 }
 else
 {
-    var sqlPassword = ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, "sqledge-password", minLower: 1, minUpper: 1, minNumeric: 1);
-    var sqlEdge = builder.AddContainer("sqledge", "mcr.microsoft.com/azure-sql-edge", "latest")
-        .WithEnvironment("MSSQL_SA_PASSWORD", sqlPassword.Value)
-        .WithEnvironment("ACCEPT_EULA", "Y")
-        .WithLifetime(ContainerLifetime.Persistent);
+    // var sqlPassword = ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, "sqledge-password", minLower: 1, minUpper: 1, minNumeric: 1);
+    // var sqlEdge = builder.AddContainer("sqledge", "mcr.microsoft.com/azure-sql-edge", "latest")
+    //     .WithEnvironment("MSSQL_SA_PASSWORD", sqlPassword.Value)
+    //     .WithEnvironment("ACCEPT_EULA", "Y");
     
+    var sqlPasswordParameter = sql.Resource.ConnectionStringExpression.ValueProviders
+        .FirstOrDefault(provider => provider is ParameterResource { Name: "sql-password" }) as ParameterResource;
+
     var sbEmulatorConfigAbsolutePath = Path.GetFullPath("ServiceBusConfig.json");
-    
+
     builder.AddContainer("servicebusemulator", "mcr.microsoft.com/azure-messaging/servicebus-emulator", "latest")
         .WithBindMount(sbEmulatorConfigAbsolutePath, "/ServiceBus_Emulator/ConfigFiles/Config.json")
-        .WithEnvironment("SQL_SERVER", "sqledge")
-        .WithEnvironment("MSSQL_SA_PASSWORD", sqlPassword.Value)
+        .WithEnvironment("SQL_SERVER", "sql")
+        .WithEnvironment("MSSQL_SA_PASSWORD", sqlPasswordParameter?.Value)
         .WithEnvironment("ACCEPT_EULA", "Y")
-        .WithHttpEndpoint(5672,5672)
-        .WaitFor(sqlEdge)
-        .WithLifetime(ContainerLifetime.Persistent);
+        .WithHttpEndpoint(5672, 5672);
+        //.WaitFor(sql);
     
     serviceBus = builder.AddConnectionString("messaging");
 }
