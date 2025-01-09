@@ -22,13 +22,28 @@ This demo is publish to Azure Container Apps.
 
 [Deploy to Azure Container Apps](infrastructure/azure-container-apps/ReadMe.md)
 
-## Build and publish the containers to Azure Container Registry
+## Build and publish the containers to Azure Container Registry using the Azure CLI
+
+To build and publish the containers to Azure Container Registry using the Azure CLI, you need to have the Azure CLI installed and logged in. The docker context will be zippped and uploaded to Azure Container Registry and the image will be built in the cloud.
 
 ```powershell
 $ENV:ACR="your_acr_name"
 az acr build --registry $ENV:ACR --image credits/credit-api:1.0 src/dotnet/credit-api/.
 az acr build --registry $ENV:ACR --image credits/booking-processor:1.0 src/dotnet/
 az acr build --registry $ENV:ACR --image credits/booking-api:1.0 src/dotnet/booking-api/.
+```
+
+## Build and publish the containers to Azure Container Registry using the .NET CLI and Docker
+
+To build and publish the containers to Azure Container Registry using the .NET CLI and Docker, you need to have Docker installed and running. You also need to have the Azure CLI installed and logged in.
+
+```powershell
+$ENV:ACR="your_acr_name"
+$ENV:ACRFQDN=$ENV:ACR + ".azurecr.io"
+az acr login --name $ENV:ACR
+dotnet publish src/dotnet/credit-api/ -c Release --os linux --arch x64 /t:PublishContainer -p ContainerRegistry=$ENV:ACRFQDN -p ContainerImageTag=1.0
+dotnet publish src/dotnet/booking-processor/ -c Release --os linux --arch x64 /t:PublishContainer -p ContainerRegistry=$ENV:ACRFQDN -p ContainerImageTag=1.0
+dotnet publish src/dotnet/booking-api/ -c Release --os linux --arch x64 /t:PublishContainer -p ContainerRegistry=$ENV:ACRFQDN -p ContainerImageTag=1.0
 ```
 
 ## To run the Rest test client

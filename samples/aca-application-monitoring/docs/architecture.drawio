@@ -1,0 +1,103 @@
+<mxfile host="65bd71144e" scale="2" border="0">
+    <diagram id="bpoPaQeS03VnUoz4qxf3" name="Page-1">
+        <mxGraphModel dx="2383" dy="675" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="82" value="" style="rounded=0;dashed=1;strokeColor=#413eea;" parent="1" vertex="1">
+                    <mxGeometry x="-500" y="180" width="520" height="110" as="geometry"/>
+                </mxCell>
+                <mxCell id="94" style="edgeStyle=none;entryX=0.531;entryY=0.011;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="84" target="93" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="-587" y="233"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="84" value="Integration or Central APIM" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/API_Management_Services.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-360.38" y="202.5" width="65" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="87" value="" style="rounded=0;dashed=1;strokeColor=#413eea;" parent="1" vertex="1">
+                    <mxGeometry x="-502" y="370" width="522" height="290" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="Logs" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/analytics/Log_Analytics_Workspaces.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-220" y="198.5" width="64" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="88" value="" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/general/Resource_Groups.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-490" y="190" width="31.88" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="133" style="edgeStyle=none;entryX=0.486;entryY=0.034;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="91" edge="1" target="153">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="40" y="540.875" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="91" value="Booking Processor" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-119" y="390" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="100" style="edgeStyle=none;entryX=-0.077;entryY=0.428;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="99" target="93" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="99" value="External or &#10;Internal producer" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/identity/Users.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-740" y="382" width="64" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="101" value="Appinsights (Azure Monitor)" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/management_governance/Application_Insights.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-90" y="198.5" width="44" height="63" as="geometry"/>
+                </mxCell>
+                <mxCell id="111" value="Infrastructure" style="text;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+                    <mxGeometry x="-463.5" y="190" width="90" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="95" style="edgeStyle=none;entryX=-0.042;entryY=0.47;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="93" target="148" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="-530" y="570" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="-587" y="591"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="125" value="External or &#10;Internal consumer" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/identity/Users.svg;" parent="1" vertex="1">
+                    <mxGeometry x="90" y="382" width="64" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="146" value="" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Container_App_Environments.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-490" y="385" width="50" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="147" value="CreditDb&#10;" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/databases/SQL_Database.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-288" y="392" width="48" height="64" as="geometry"/>
+                </mxCell>
+                <mxCell id="150" style="edgeStyle=none;entryX=-0.079;entryY=0.482;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="93" target="149" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="-530" y="487"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="93" value="Gateway&#10;" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/API_Management_Services.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-620" y="392" width="65" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="151" style="edgeStyle=none;entryX=0.069;entryY=0.436;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="148" target="83">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="148" value="Booking Api" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-458.12" y="560" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="154" style="edgeStyle=none;entryX=-0.128;entryY=0.568;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="149" target="147">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="149" value="Credit Api" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/other/Worker_Container_App.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-458.12" y="455" width="68" height="66" as="geometry"/>
+                </mxCell>
+                <mxCell id="152" style="edgeStyle=none;entryX=-0.012;entryY=0.538;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="83" target="91">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="83" value="Bookings" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/integration/Service_Bus.svg;" parent="1" vertex="1">
+                    <mxGeometry x="-298" y="490" width="68" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="155" style="edgeStyle=none;entryX=1.002;entryY=0.614;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="153" target="148">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="153" value="Booking" style="aspect=fixed;points=[];align=center;image;fontSize=12;image=img/lib/azure2/databases/SQL_Database.svg;" vertex="1" parent="1">
+                    <mxGeometry x="-110" y="570" width="48" height="64" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

@@ -7,6 +7,9 @@
         <OpenApiDocumentsDirectory>./Swagger/</OpenApiDocumentsDirectory>
         <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
         <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+        <IsPublishable>true</IsPublishable>
+        <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+        <ContainerRepository>credits/booking-api</ContainerRepository>
     </PropertyGroup>
     
     <ItemGroup>

@@ -6,6 +6,7 @@ builder.Configuration.AddJsonFile("appsettings.local.json", true);
 
 var sql = builder.AddAzureSqlServer("sql")
     .RunAsContainer(resourceBuilder => resourceBuilder.WithLifetime(ContainerLifetime.Persistent));
+
 var creditDb = sql.AddDatabase("credit-db");
 var bookingDb = sql.AddDatabase("booking-db");
 
@@ -17,11 +18,6 @@ if (builder.ExecutionContext.IsPublishMode)
 }
 else
 {
-    // var sqlPassword = ParameterResourceBuilderExtensions.CreateDefaultPasswordParameter(builder, "sqledge-password", minLower: 1, minUpper: 1, minNumeric: 1);
-    // var sqlEdge = builder.AddContainer("sqledge", "mcr.microsoft.com/azure-sql-edge", "latest")
-    //     .WithEnvironment("MSSQL_SA_PASSWORD", sqlPassword.Value)
-    //     .WithEnvironment("ACCEPT_EULA", "Y");
-    
     var sqlPasswordParameter = sql.Resource.ConnectionStringExpression.ValueProviders
         .FirstOrDefault(provider => provider is ParameterResource { Name: "sql-password" }) as ParameterResource;
 
@@ -32,8 +28,8 @@ else
         .WithEnvironment("SQL_SERVER", "sql")
         .WithEnvironment("MSSQL_SA_PASSWORD", sqlPasswordParameter?.Value)
         .WithEnvironment("ACCEPT_EULA", "Y")
-        .WithHttpEndpoint(5672, 5672);
-        //.WaitFor(sql);
+        .WithHttpEndpoint(5672, 5672)
+        .WaitFor(sql);
     
     serviceBus = builder.AddConnectionString("messaging");
 }
@@ -46,8 +42,7 @@ var dbSetup = builder.AddProject<Projects.DbSetup>("db-setup")
 builder.AddProject<Projects.CreditApi>("credit-api")
     .WithReference(serviceBus)
     .WithReference(creditDb)
-    .WaitForCompletion(dbSetup)
-    .PublishAsAzureContainerApp((infrastructure, app) => { });
+    .WaitForCompletion(dbSetup);
 
 builder.AddProject<Projects.BookingProcessor>("booking-processor")
     .WithReference(serviceBus)

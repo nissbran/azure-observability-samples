@@ -18,12 +18,15 @@ internal static class ApplicationConfiguration
             // Turn on service discovery by default
             http.AddServiceDiscovery();
         });
+
+        // Aspire integration services -----------------------------------------
         builder.AddAzureServiceBusClient("messaging");
         
         var connectionString = builder.Configuration.GetConnectionString("booking-db");
         builder.Services.AddPooledDbContextFactory<BookingDbContext>(dbContextOptionsBuilder => dbContextOptionsBuilder.UseSqlServer(connectionString));
         builder.EnrichSqlServerDbContext<BookingDbContext>();
-        
+        // ---------------------------------------------------------------------
+
         builder.Services.AddSingleton<EventConsumedMetrics>();
         
         builder.Services.AddSingleton<BookingEventHandler>();

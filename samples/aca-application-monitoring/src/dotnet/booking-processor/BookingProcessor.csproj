@@ -4,6 +4,9 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <IsPublishable>true</IsPublishable>
+        <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
+        <ContainerRepository>credits/booking-processor</ContainerRepository>
     </PropertyGroup>
     
     <ItemGroup>

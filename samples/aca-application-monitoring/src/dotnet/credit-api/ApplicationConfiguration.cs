@@ -25,9 +25,12 @@ internal static class ApplicationConfiguration
             // Turn on service discovery by default
             http.AddServiceDiscovery();
         });
-        
+
+        // Aspire integration services -----------------------------------------
         builder.AddSqlServerDbContext<CreditDbContext>("credit-db");
         builder.AddAzureServiceBusClient("messaging");
+        // ---------------------------------------------------------------------
+
         builder.Services.AddRateLimiter(options =>
         {
             options.OnRejected = (context, token) => 
