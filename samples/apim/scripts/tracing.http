@@ -1,0 +1,133 @@
+@clientId = {{$dotenv clientId}}
+@clientSecret = {{$dotenv clientSecret}}
+@tenantId = {{$dotenv tenantId}}
+@clientId2 = {{$dotenv clientId2}}
+@clientSecret2 = {{$dotenv clientSecret2}}
+
+@subscriptionId ={{$dotenv subscriptionId}}
+@resourceGroupName = {{$dotenv resourceGroupName}}
+@apimServiceName ={{$dotenv apimServiceName}}
+@apimSubscriptionKey = {{$dotenv apimSubscriptionKey}}
+@apimApiVersion=2023-09-01-preview
+@apimGatewayUrl = {{$dotenv apimGatewayUrl}}
+
+@apimResourceId=subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}
+@apiResourceId={{apimResourceId}}/apis/echo-api
+
+
+### Get token
+# @name token
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecret}}&scope=https://management.azure.com/.default
+
+### Get token
+@authToken = {{token.response.body.$.access_token}}
+
+### Get identity
+GET https://management.azure.com/{{apimResourceId}}/identity?api-version=2024-06-01-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+
+### Get user token
+# @name userTokenResponse
+POST https://management.azure.com/{{apimResourceId}}/users/nissbran-gmail-com/token?api-version=2024-06-01-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "properties": {
+    "keyType": "primary",
+    "expiry": "2025-01-16T17:44:24.2845269Z"
+  }
+}
+       // return ${this.type} token=${@authToken},refresh=true;
+
+
+### Parse SAS token
+@userSasToken = {{userTokenResponse.response.body.$.value}}
+
+### Get apis 
+GET https://management.azure.com/{{apimResourceId}}/apis?api-version=2024-06-01-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+Ocp-Apim-Sas-Token: {{userSasToken}}
+
+
+### Get apis by sas token
+GET https://{{apimServiceName}}.management.azure-api.net/{{apimResourceId}}/apis?api-version=2024-06-01-preview
+Authorization: SharedAccessSignature {{userSasToken}}
+
+### Get apis by sas token
+GET https://{{apimServiceName}}.developer.azure-api.net/apis?api-version=2024-06-01-preview
+Authorization: SharedAccessSignature {{userSasToken}}
+Content-Type: application/json
+
+
+
+### Get debug/trace credentials
+# @name debugToken
+POST https://management.azure.com/{{apimResourceId}}/gateways/managed/listDebugCredentials?api-version=2023-05-01-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "credentialsExpireAfter": "PT1H",
+    "apiId": "{{apiResourceId}}",
+    "purposes": ["tracing"]
+}
+
+### Get trace token
+@traceToken = {{debugToken.response.body.$.token}}
+
+### Run trace
+# @name traceResult
+
+GET {{apimGatewayUrl}}/echo/resource?param1=sample
+Ocp-Apim-Trace: true
+Ocp-Apim-Subscription-Key: 9bde62c3186b4283984231fa98f0e1fb
+Apim-Debug-Authorization: {{traceToken}}
+
+### Run trace
+# @name traceResult
+
+GET {{apimGatewayUrl}}/echo/resource-cached?param1=sample45
+Ocp-Apim-Subscription-Key: 9bde62c3186b4283984231fa98f0e1fb
+Apim-Debug-Authorization: {{traceToken}}
+
+
+### Run trace
+# @name traceResult
+
+POST {{apimGatewayUrl}}/echo/resource
+Ocp-Apim-Subscription-Key: 9bde62c3186b4283984231fa98f0e1fb
+Apim-Debug-Authorization: {{traceToken}}
+Content-Type: application/json
+
+{
+    "param1": "sample"
+}
+
+
+### Get trace token
+@traceIdResult = {{traceResult.response.headers.Apim-Trace-Id}}
+
+###
+
+POST https://management.azure.com/{{apimResourceId}}/gateways/managed/listTrace?api-version=2023-05-01-preview
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+    "traceId": "{{traceIdResult}}"
+}
+
+
+### Get token
+# @name token2
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{clientId2}}&client_secret={{clientSecret2}}&scope=api://booking-api/.default

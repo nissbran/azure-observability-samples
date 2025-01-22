@@ -10,16 +10,17 @@ param vmPassword string
 @description('Email addresses to which the notifications should be sent. Should be specified as an array of strings, for example, ["user1@contoso.com", "user2@contoso.com"].')
 param emailAddress array
 
-resource rg_network 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource rg_network 'Microsoft.Resources/resourceGroups@2024-07-01' = {
   name: rgNameNetwork
   location: location
 }
 
-resource rg_observability 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+resource rg_observability 'Microsoft.Resources/resourceGroups@2024-07-01' = {
    name: rgNameOp
    location: location
 }
-resource rg_application 'Microsoft.Resources/resourceGroups@2022-09-01' = {
+
+resource rg_application 'Microsoft.Resources/resourceGroups@2024-07-01' = {
    name: rgNameApp
    location: location
 }
@@ -38,6 +39,7 @@ module monitoring 'core/monitoring/monitoring.bicep' = {
   name: 'monitoring'
   scope: rg_observability
   params: {
+    vnetName: network.outputs.vnetName
     location: location
     networkResourceGroup: rgNameNetwork
   }

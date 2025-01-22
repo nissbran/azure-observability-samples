@@ -1,0 +1,14 @@
+<!--
+    IMPORTANT:
+    - Policy fragment are included as-is whenever they are referenced.
+    - If using variables. Ensure they are setup before use.
+    - Copy and paste your code here or simply start coding
+-->
+<fragment>
+	<validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized" require-expiration-time="true" require-scheme="Bearer" require-signed-tokens="true" clock-skew="0">
+		<openid-config url="{{global-openid-jwks-url}}" />
+		<audiences>
+			<audience>@(context.Variables.GetValueOrDefault<string>("audience"))</audience>
+		</audiences>
+	</validate-jwt>
+</fragment>

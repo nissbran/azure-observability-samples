@@ -1,0 +1,16 @@
+<policies>
+    <inbound>
+        <base />
+        <set-variable name="audience" value="account" />
+        <include-fragment fragment-id="jwt-demo" />
+    </inbound>
+    <backend>
+        <base />
+    </backend>
+    <outbound>
+        <base />
+    </outbound>
+    <on-error>
+        <base />
+    </on-error>
+</policies>

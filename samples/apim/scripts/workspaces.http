@@ -1,0 +1,46 @@
+@clientId = {{$dotenv clientId}}
+@clientSecret = {{$dotenv clientSecret}}
+@tenantId = {{$dotenv tenantId}}
+
+@subscriptionId ={{$dotenv subscriptionId}}
+@resourceGroupName = {{$dotenv resourceGroupName}}
+@apimServiceName ={{$dotenv apimServiceName}}
+@apimApiVerision=2023-09-01-preview
+@workspace= {{$dotenv workspace}}
+
+### Devops scope: 499b84ac-1321-427f-aa17-267ca6975798/.default
+
+# @name token
+POST https://login.microsoftonline.com/{{tenantId}}/oauth2/v2.0/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{clientId}}&client_secret={{clientSecret}}&scope=https://management.azure.com/.default
+
+### Get token
+@authToken = {{token.response.body.$.access_token}}
+
+### Get Workspaces
+### /subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/group-name/providers/Microsoft.ApiManagement/service/apim-name/workspaces?api-version=2023-09-01-preview&$filter=ownerId eq '1'&$top=20
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/workspaces?api-version={{apimApiVerision}}
+Authorization: Bearer {{authToken}}
+
+### Get user subscriptions
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/subscriptions?api-version={{apimApiVerision}}&$filter=ownerId eq '1'&$top=20
+Authorization: Bearer {{authToken}}
+
+### Get user subscriptions for a workspace
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/workspaces/{{workspace}}/subscriptions?api-version={{apimApiVerision}}&$filter=ownerId eq '1'&$top=20
+Authorization: Bearer {{authToken}}
+
+### Get Apis
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/apis?api-version={{apimApiVerision}}
+Authorization: Bearer {{authToken}}
+
+### Get Products
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/products?api-version={{apimApiVerision}}
+Authorization: Bearer {{authToken}}
+
+### Get Product subscriptions
+GET https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.ApiManagement/service/{{apimServiceName}}/products/-/subscriptions?api-version={{apimApiVerision}}
+Authorization: Bearer {{authToken}}
+

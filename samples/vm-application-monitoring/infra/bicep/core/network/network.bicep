@@ -3,15 +3,13 @@ param location string = resourceGroup().location
 param addressPrefix string = '10.10.0.0/16'
 param ipAddressSource string
 
-resource vm_nsg 'Microsoft.Network/networkSecurityGroups@2023-06-01' = {
+resource vm_nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: 'nsg-vms'
   location: location
-  properties: {
-    
-  }
+  properties: {}
 }
 
-resource appgw_nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
+resource appgw_nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
   name: 'nsg-appgw'
   location: location
   properties: {
@@ -44,9 +42,146 @@ resource appgw_nsg 'Microsoft.Network/networkSecurityGroups@2023-05-01' = {
       }
     ]
   }
+} 
+ 
+resource apim_nsg 'Microsoft.Network/networkSecurityGroups@2024-05-01' = {
+  name: 'nsg-apim'
+  location: location
+  properties: {
+    securityRules: [
+      {
+        name: 'AllowTagCustom3443Inbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '3443'
+          sourceAddressPrefix: 'ApiManagement'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 100
+          direction: 'Inbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowTagCustom6390Inbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '6390'
+          sourceAddressPrefix: 'AzureLoadBalancer'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 110
+          direction: 'Inbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowTagCustom443Outbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'Storage'
+          access: 'Allow'
+          priority: 120
+          direction: 'Outbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowTagCustom1433Outbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '1433'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'Sql'
+          access: 'Allow'
+          priority: 130
+          direction: 'Outbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowTagCustom443OutboundAKV'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'AzureKeyVault'
+          access: 'Allow'
+          priority: 140
+          direction: 'Outbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowTagCustom1886443Outbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          sourceAddressPrefix: 'VirtualNetwork'
+          destinationAddressPrefix: 'AzureMonitor'
+          access: 'Allow'
+          priority: 150
+          direction: 'Outbound'
+          sourcePortRanges: []
+          destinationPortRanges: [
+            '1886'
+            '443'
+          ]
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+      {
+        name: 'AllowAnyHTTPSInbound'
+        type: 'Microsoft.Network/networkSecurityGroups/securityRules'
+        properties: {
+          protocol: 'TCP'
+          sourcePortRange: '*'
+          destinationPortRange: '443'
+          sourceAddressPrefix: 'Internet'
+          destinationAddressPrefix: 'VirtualNetwork'
+          access: 'Allow'
+          priority: 160
+          direction: 'Inbound'
+          sourcePortRanges: []
+          destinationPortRanges: []
+          sourceAddressPrefixes: []
+          destinationAddressPrefixes: []
+        }
+      }
+    ]
+  }
 }
 
-resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
+resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: vnetName
   location: location
   properties: {
@@ -87,6 +222,17 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
         }
       }
       {
+        name: 'sn-apim'
+        properties: {
+          addressPrefix: cidrSubnet(addressPrefix, 24, 4)
+          privateLinkServiceNetworkPolicies: 'Enabled'
+          privateEndpointNetworkPolicies: 'Disabled'
+          networkSecurityGroup: {
+            id: apim_nsg.id
+          }
+        }
+      }
+      {
         name: 'AzureBastionSubnet'
         properties: {
           addressPrefix: cidrSubnet(addressPrefix, 27, 3)
@@ -95,6 +241,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = {
         }
       }
     ]
+  }
+
+  resource vmSubnet 'subnets' existing = {
+    name: 'sn-vms'
   }
 }
 
@@ -137,7 +287,7 @@ resource blob_private_dns_zone 'Microsoft.Network/privateDnsZones@2020-06-01' = 
 }
 // ---------------------------------------------------------------
 
-resource azure_monitor_private_endpoint 'Microsoft.Network/privateEndpoints@2023-05-01' = {
+resource azure_monitor_private_endpoint 'Microsoft.Network/privateEndpoints@2024-05-01' = {
   name: 'pe-monitor-hub'
   location: location
   properties: {
@@ -159,7 +309,7 @@ resource azure_monitor_private_endpoint 'Microsoft.Network/privateEndpoints@2023
   }
 }
 
-resource monitor_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource monitor_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: 'monitor_dns_link_to_hub'
   parent: monitor_private_dns_zone
   location: 'global'
@@ -171,7 +321,7 @@ resource monitor_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetw
   }
 }
 
-resource oms_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource oms_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: 'oms_dns_link_to_hub'
   parent: oms_private_dns_zone
   location: 'global'
@@ -183,7 +333,7 @@ resource oms_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkL
   }
 }
 
-resource ods_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource ods_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: 'ods_dns_link_to_hub'
   parent: ods_private_dns_zone
   location: 'global'
@@ -195,7 +345,7 @@ resource ods_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkL
   }
 }
 
-resource agentsvc_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource agentsvc_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: 'agentsvc_dns_link_to_hub'
   parent: agentsvc_private_dns_zone
   location: 'global'
@@ -207,7 +357,7 @@ resource agentsvc_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNet
   }
 }
 
-resource blob_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2020-06-01' = {
+resource blob_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetworkLinks@2024-06-01' = {
   name: 'blob_dns_link_to_hub'
   parent: blob_private_dns_zone
   location: 'global'
@@ -219,7 +369,7 @@ resource blob_dns_link_to_vnet 'Microsoft.Network/privateDnsZones/virtualNetwork
   }
 }
 
-resource azure_monitor_dns_group 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2023-04-01' = {
+resource azure_monitor_dns_group 'Microsoft.Network/privateEndpoints/privateDnsZoneGroups@2024-05-01' = {
   parent: azure_monitor_private_endpoint
   name: 'monitor-pe-dns-group'
   properties: {
