@@ -55,6 +55,21 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
             '\\VmInsights\\DetailedMetrics'
           ]
         }
+        {
+          name: 'DefaultPerfCounters'
+          streams: [
+            'Microsoft-Perf'
+          ]
+          samplingFrequencyInSeconds: 60
+          counterSpecifiers: [
+            '\\Processor(_Total)\\% Processor Time'
+            '\\Memory\\Available MBytes'
+            '\\LogicalDisk(_Total)\\% Free Space'
+            '\\LogicalDisk(_Total)\\Avg. Disk sec/Read'
+            '\\LogicalDisk(_Total)\\Avg. Disk sec/Write'
+            '\\Network Interface(*)\\Bytes Total/sec'
+          ]
+        }
       ]
       extensions: [
         {
@@ -114,6 +129,9 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
           workspaceResourceId: workspaceResourceId
         }
       ]
+      azureMonitorMetrics: {
+        name: 'azure-monitor-metrics-destination'
+      }
     }
     dataFlows: [
       {
@@ -124,6 +142,15 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
           'Microsoft-InsightsMetrics'
           'Microsoft-ServiceMap'
           'Microsoft-Event'
+          'Microsoft-Perf'
+        ]
+      }
+      {
+        destinations: [
+          'azure-monitor-metrics-destination'
+        ]
+        streams: [
+          'Microsoft-InsightsMetrics'
         ]
       }
       {

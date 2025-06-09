@@ -24,3 +24,8 @@ This setup is for monitoring application vms with Azure Monitor and Data Collect
 
 To deploy with bicep go to the [infra/bicep](infra/bicep) folder and follow the instructions in the [ReadMe.md](infra/bicep/README.md).
 
+## Use Azure Data Explorer with Log Analytics
+
+To use Azure Data Explorer with Log Analytics you need connect to the Log Analytics workspace with the following URL given that your logged in to the Azure Data Explorer portal with a user with access to the Log Analytics workspace.
+
+`https://ade.loganalytics.io/subscriptions/<subscription-id>/resourceGroups/<rg>/providers/Microsoft.OperationalInsights/workspaces/<workspace-name>`
