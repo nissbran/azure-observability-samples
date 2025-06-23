@@ -4,43 +4,41 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
-        <OpenApiDocumentsDirectory>./Swagger/</OpenApiDocumentsDirectory>
-        <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>
-        <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>
+<!--        <OpenApiDocumentsDirectory>./Swagger/</OpenApiDocumentsDirectory>-->
+<!--        <OpenApiGenerateDocuments>true</OpenApiGenerateDocuments>-->
+<!--        <OpenApiGenerateDocumentsOnBuild>true</OpenApiGenerateDocumentsOnBuild>-->
         <IsPublishable>true</IsPublishable>
         <EnableSdkContainerSupport>true</EnableSdkContainerSupport>
         <ContainerRepository>credits/credit-api</ContainerRepository>
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.0.0" />
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.0.0" />
-        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-        
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.6.0" />
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="9.3.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
     </ItemGroup>
     
     <ItemGroup>
-        <PackageReference Include="Aspire.Azure.Messaging.ServiceBus" Version="9.0.0" />
-        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+        <PackageReference Include="Aspire.Azure.Messaging.ServiceBus" Version="9.3.1" />
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.3.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Serilog.AspNetCore" Version="8.0.2" />
+        <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
-        <PackageReference Include="Serilog.Sinks.Seq" Version="8.0.0" />
-        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.0.0" />
+        <PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+        <PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.9.0" />
-        <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.3.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.12.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.12.0" />
+        <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.4.0" />
     </ItemGroup>
 
     <ItemGroup>
