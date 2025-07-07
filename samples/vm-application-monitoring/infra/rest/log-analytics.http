@@ -1,0 +1,77 @@
+@tenantId={{$dotenv tenantId}}
+@subscriptionId={{$dotenv subscriptionId}}
+@resourceGroupName={{$dotenv resourceGroupName}}
+@manualBearerToken={{$dotenv manualBearerToken}}
+@workspaceName={{$dotenv workspaceName}}
+
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}?api-version=2021-04-01
+Content-Type: application/json
+Authorization: Bearer {{manualBearerToken}}
+
+{
+  "location": "swedencentral"
+}
+
+
+###
+
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourcegroups/{{resourceGroupName}}/providers/Microsoft.OperationalInsights/workspaces/{{workspaceName}}?api-version=2025-02-01
+content-type: application/json
+Authorization: Bearer {{manualBearerToken}}
+
+{
+  "properties": {
+    "sku": {
+      "name": "PerGB2018"
+    },
+    "retentionInDays": 30
+  },
+  "location": "swedencentral",
+}
+
+###
+
+@tableName=ApplicationJsonLogsAux_CL
+PUT https://management.azure.com/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroupName}}/providers/Microsoft.OperationalInsights/workspaces/{{workspaceName}}/tables/{{tableName}}?api-version=2023-01-01-preview
+content-type: application/json
+Authorization: Bearer {{manualBearerToken}}
+
+{
+  "properties": {
+    "schema": {
+      "name": "ApplicationJsonLogsAux_CL",
+      "displayName": "ApplicationJsonLogsAux",
+      "description": "Application Json Logs",
+      "columns": [
+        {
+          "name": "TimeGenerated",
+          "type": "datetime",
+          "displayName": "TimeGenerated",
+          "description": "Time when event was generated"
+        },
+        {
+          "name": "Timestamp",
+          "type": "datetime",
+          "displayName": "Timestamp",
+          "description": "Time when log written in the logs"
+        },
+        {
+          "name": "Level",
+          "type": "string",
+          "displayName": "Level",
+          "description": "Log level"
+        },
+        {
+          "name": "Message",
+          "type": "string",
+          "displayName": "Message",
+          "description": "Log message"
+        }
+      ]
+    },
+    "retentionInDays": null,
+    "totalRetentionInDays": 365,
+    "plan": "Auxiliary"
+  }
+}
+
