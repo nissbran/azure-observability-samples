@@ -11,7 +11,7 @@ param administratorLogin string
 @secure()
 param administratorLoginPassword string
 
-resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' = {
   name: serverName
   location: location
   properties: {
@@ -20,23 +20,33 @@ resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
   }
 }
 
-resource creditDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
+resource creditDb 'Microsoft.Sql/servers/databases@2024-05-01-preview' = {
   parent: sqlServer
   name: 'credit-db'
   location: location
   sku: {
-    name: 'S0'
-    tier: 'Standard'
+    name: 'GP_S_Gen5'
+    tier: 'GeneralPurpose'
+    family: 'Gen5'
+    capacity: 1 // 1 vCore
+  }
+  properties: {
+    autoPauseDelay: 60 // Auto-pause after 60 minutes of inactivity
   }
 }
 
-resource bookingDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
+resource bookingDb 'Microsoft.Sql/servers/databases@2024-05-01-preview' = {
   parent: sqlServer
   name: 'booking-db'
   location: location
   sku: {
-    name: 'S0'
-    tier: 'Standard'
+    name: 'GP_S_Gen5'
+    tier: 'GeneralPurpose'
+    family: 'Gen5'
+    capacity: 1 // 1 vCore
+  }
+  properties: {
+    autoPauseDelay: 60 // Auto-pause after 60 minutes of inactivity
   }
 }
 

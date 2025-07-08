@@ -16,7 +16,7 @@ resource appinsights 'Microsoft.Insights/components@2020-02-02' existing = {
   name: appinsightsName
 }
 
-resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
+resource apim 'Microsoft.ApiManagement/service@2024-06-01-preview' = {
   name: 'apim-${name}'
   location: location
   identity: {
@@ -38,7 +38,7 @@ resource apim 'Microsoft.ApiManagement/service@2023-09-01-preview' = {
 }
 
 
-resource namedValueAppInsightsKey 'Microsoft.ApiManagement/service/namedValues@2023-09-01-preview' = {
+resource namedValueAppInsightsKey 'Microsoft.ApiManagement/service/namedValues@2024-06-01-preview' = {
   name: 'appInsightsKey'
   parent: apim
   properties: {
@@ -48,7 +48,7 @@ resource namedValueAppInsightsKey 'Microsoft.ApiManagement/service/namedValues@2
   }
 }
 
-resource apiManagementServiceAppinsights 'Microsoft.ApiManagement/service/loggers@2023-09-01-preview' = {
+resource apiManagementServiceAppinsights 'Microsoft.ApiManagement/service/loggers@2024-06-01-preview' = {
   name: 'appinsights-general-logger'
   parent: apim
   properties: {
@@ -79,7 +79,7 @@ resource apiLogsLA 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = 
   }
 }
 
-resource healthApi 'Microsoft.ApiManagement/service/apis@2023-09-01-preview' = {
+resource healthApi 'Microsoft.ApiManagement/service/apis@2024-06-01-preview' = {
   name: 'api-health'
   parent: apim
   properties: {

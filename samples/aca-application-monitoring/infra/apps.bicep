@@ -12,33 +12,33 @@ var acrPullRole = resourceId('Microsoft.Authorization/roleDefinitions', '7f951dd
 var sbDataOwnerRole = resourceId('Microsoft.Authorization/roleDefinitions', '090c5cfd-751d-490a-894a-3ce6f1109419')
 
 // Existing resources ---------------------------------------------------------
-resource acr 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
+resource acr 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
   name: 'acr${name}'
 }
 
-resource aca_env 'Microsoft.App/managedEnvironments@2024-03-01' existing = {
+resource aca_env 'Microsoft.App/managedEnvironments@2025-01-01' existing = {
   name: 'acaenv${name}'
 }
 
-resource sb_ns 'Microsoft.ServiceBus/namespaces@2021-11-01' existing = {
+resource sb_ns 'Microsoft.ServiceBus/namespaces@2024-01-01' existing = {
   name: 'sb${name}'
 }
 
-resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' existing = {
+resource sqlServer 'Microsoft.Sql/servers@2024-05-01-preview' existing = {
   name: 'sql${name}'
 }
 
-resource creditDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' existing = {
+resource creditDb 'Microsoft.Sql/servers/databases@2024-05-01-preview' existing = {
   name: 'credit-db'
   parent: sqlServer
 }
 
-resource bookingDb 'Microsoft.Sql/servers/databases@2023-08-01-preview' existing = {
+resource bookingDb 'Microsoft.Sql/servers/databases@2024-05-01-preview' existing = {
   name: 'booking-db'
   parent: sqlServer
 }
 
-resource sbSharedKey 'Microsoft.ServiceBus/namespaces/AuthorizationRules@2021-11-01' existing = {
+resource sbSharedKey 'Microsoft.ServiceBus/namespaces/AuthorizationRules@2024-01-01' existing = {
   name: 'credits'
   parent: sb_ns
 }
@@ -425,6 +425,7 @@ resource booking_api 'Microsoft.App/containerApps@2024-03-01' = {
             }
             {
               name: 'Authority'
+#disable-next-line no-hardcoded-env-urls
               value: 'https://login.microsoftonline.com/${subscription().tenantId}'
             }
             {
@@ -474,7 +475,7 @@ resource apimLogger 'Microsoft.ApiManagement/service/loggers@2023-09-01-preview'
   parent: apim
 }
 
-resource creditApiBackend1 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+resource creditApiBackend1 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'credit-api-aca-backend1'
   parent: apim
   properties: {
@@ -546,7 +547,7 @@ resource creditApiBackend2 'Microsoft.ApiManagement/service/backends@2023-09-01-
   }
 }
 
-resource creditApiBackendPool 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+resource creditApiBackendPool 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'credit-api-aca-backend-pool'
   parent: apim
   properties: {
@@ -569,7 +570,7 @@ resource creditApiBackendPool 'Microsoft.ApiManagement/service/backends@2023-09-
   }
 }
 
-resource bookingApiBackend 'Microsoft.ApiManagement/service/backends@2023-09-01-preview' = {
+resource bookingApiBackend 'Microsoft.ApiManagement/service/backends@2024-06-01-preview' = {
   name: 'booking-api-aca-backend'
   parent: apim
   properties: {
