@@ -7,7 +7,7 @@ param location string = resourceGroup().location
 
 var laName = 'logs-security-${nameSuffix}'
 
-resource loganalytics_workspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
+resource loganalytics_workspace 'Microsoft.OperationalInsights/workspaces@2025-02-01' = {
   name: laName
   location: location
   properties: {

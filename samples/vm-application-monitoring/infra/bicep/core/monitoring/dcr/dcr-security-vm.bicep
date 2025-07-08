@@ -3,7 +3,7 @@ param location string = resourceGroup().location
 param workspaceResourceId string
 param dataCollectionEndpointResourceId string
 
-resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
+resource dcr 'Microsoft.Insights/dataCollectionRules@2023-03-11' = {
   name: 'dcr-security-win-vm-${nameSuffix}'
   location: location
   properties: {
@@ -41,6 +41,8 @@ resource dcr 'Microsoft.Insights/dataCollectionRules@2022-06-01' = {
         streams: [
           'Microsoft-Event'
         ]
+        outputStream: 'Custom-WindowEvents_CL'
+        transformKql: 'source | project TimeGenerated, EventID, Message=RenderedDescription, EventType=EventLog'
       }
     ]
   }

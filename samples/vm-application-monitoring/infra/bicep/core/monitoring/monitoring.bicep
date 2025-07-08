@@ -43,6 +43,17 @@ module table_tomcat_logs 'loganalytics/table-tomcat-logs.bicep' = {
   ]
 }
 
+module table_event_logs 'loganalytics/table-event-logs.bicep' = {
+  name: 'event_logs_table'
+  params: {
+    workspaceName: logs_security_workspace.outputs.workspaceName
+    tablePlan: 'Auxiliary'
+  }
+  dependsOn: [
+    logs_security_workspace
+  ]
+}
+
 module dce_app 'dce/dce-application-vm.bicep' = {
   name: 'dce_app'
   params: {
@@ -60,6 +71,17 @@ module dcr_app 'dcr/dcr-application-vm.bicep' = {
     dataCollectionEndpointResourceId: dce_app.outputs.dceId
     workspaceResourceId: logs_workspace.outputs.workspaceId
   }
+  dependsOn: [
+    table_app_logs
+  ]
+}
+
+module dcr_vm_insights 'dcr/dcr-vm-insights.bicep' = {
+  name: 'dcr_vm_insights'
+  params: {
+    nameSuffix: nameSuffix
+    location: location
+  }
 }
 
 module dcr_security 'dcr/dcr-security-vm.bicep' = {
@@ -70,6 +92,9 @@ module dcr_security 'dcr/dcr-security-vm.bicep' = {
     dataCollectionEndpointResourceId: dce_app.outputs.dceId
     workspaceResourceId: logs_security_workspace.outputs.workspaceId
   }
+  dependsOn: [
+    table_event_logs
+  ]
 }
 
 module grafana 'grafana/grafana.bicep' = {
