@@ -1,0 +1,10 @@
+
+POST http://localhost:7075/api/tasks
+Content-Type: application/json
+
+{
+  "taskId": "12345",
+  "taskName": "Sample Task"
+}
+
+###

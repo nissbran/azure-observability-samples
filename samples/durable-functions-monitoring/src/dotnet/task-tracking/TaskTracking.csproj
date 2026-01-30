@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <AzureFunctionsVersion>v4</AzureFunctionsVersion>
+        <UserSecretsId>ca64dc64-4faf-43c1-87c2-3854d28b0ccd</UserSecretsId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.2.0"/>
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.2.0" />
+        <PackageReference Include="Aspire.Azure.Storage.Blobs" Version="13.1.0" />
+    </ItemGroup>
+
+    <!-- Azure Functions packages -->
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.OpenTelemetry" Version="1.1.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask" Version="1.14.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask.AzureManaged" Version="1.2.0"/>
+<!--        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.DurableTask.SqlServer" Version="1.5.2" />-->
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0"/>
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
+    </ItemGroup>
+
+    <!-- Logging and OpenTelemetry packages -->
+    <ItemGroup>
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.0"/>
+        <PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.15.0-beta.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0"/>
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.15.0"/>
+        <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.0" />
+        <PackageReference Include="Azure.Monitor.OpenTelemetry.Exporter" Version="1.6.0"/>
+    </ItemGroup>
+
+</Project>

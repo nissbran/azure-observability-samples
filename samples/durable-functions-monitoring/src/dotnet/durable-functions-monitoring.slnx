@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/aspire/">
+    <Project Path="aspire/AspireHost.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/functions/">
+    <Project Path="task-tracking/TaskTracking.csproj" />
+  </Folder>
+  <Folder Name="/apis/">
+    <Project Path="mock-api/ExternalSystemMockApi.csproj" />
+  </Folder>
+</Solution>
