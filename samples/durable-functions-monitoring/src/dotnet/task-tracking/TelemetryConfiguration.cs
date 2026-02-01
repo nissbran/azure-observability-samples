@@ -22,7 +22,11 @@ public static class TelemetryConfiguration
                 tracingBuilder
                     .AddSource("DurableTask.Core")
                     .AddHttpClientInstrumentation()
-                    .AddOtlpExporter();
+                    .AddEntityFrameworkCoreInstrumentation();
+                if (!string.IsNullOrEmpty(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
+                {
+                    tracingBuilder.AddOtlpExporter();
+                }
                 
                 if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
                 {
@@ -34,6 +38,15 @@ public static class TelemetryConfiguration
                 metricsBuilder
                     .AddMeter("DurableTask.Core")
                     .AddHttpClientInstrumentation();
+                if (!string.IsNullOrEmpty(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]))
+                {
+                    metricsBuilder.AddOtlpExporter();
+                }
+                
+                if (!string.IsNullOrEmpty(builder.Configuration["APPLICATIONINSIGHTS_CONNECTION_STRING"]))
+                {
+                    metricsBuilder.AddAzureMonitorMetricExporter();
+                }
             });
         
         return builder;

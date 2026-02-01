@@ -15,8 +15,13 @@ Storage configruration for SQL backed Durable Functions is done in the `host.jso
 ```
 
 It is also possible to use the Azure Managed Durable Task Scheduler provider for Durable Functions by configuring the `host.json` file as shown below:
+More information on the Azure Managed Durable Task Scheduler provider can be found [here](https://learn.microsoft.com/en-us/azure/azure-functions/durable/durable-task-scheduler/quickstart-durable-task-scheduler?pivots=csharp).
 ```Json
 "storageProvider": {
     "type": "AzureManaged",
     "connectionStringName": "DURABLE_TASK_SCHEDULER_CONNECTION_STRING"
-},
+}
+```
+## Start Emulator
+
+To start the 

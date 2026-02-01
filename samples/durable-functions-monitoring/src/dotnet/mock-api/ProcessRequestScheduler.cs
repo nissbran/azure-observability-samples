@@ -5,7 +5,7 @@ namespace ExternalSystemMockApi;
 public sealed class ProcessRequestScheduler(IProcessRequestService service, ILogger<ProcessRequestScheduler> logger) : BackgroundService
 {
     private static readonly TimeSpan PollInterval = TimeSpan.FromSeconds(1);
-    private static readonly TimeSpan CallbackDelay = TimeSpan.FromSeconds(2);
+    private static readonly TimeSpan CallbackDelay = TimeSpan.FromSeconds(10);
     
     private static readonly ActivitySource ActivitySource = new ActivitySource("ExternalSystemMockApi.ProcessRequestScheduler");
 

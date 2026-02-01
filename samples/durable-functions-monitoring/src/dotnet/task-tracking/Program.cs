@@ -24,6 +24,8 @@ builder.Services.AddHttpClient("ExternalSystem2", client =>
 });
 
 builder.AddAzureBlobContainerClient("file-storage");
+builder.AddSqlServerDbContext<TaskAuditDbContext>("task-audit-db");
+
 builder.ConfigureFunctionsWebApplication();
 builder.ConfigureTelemetry();
 

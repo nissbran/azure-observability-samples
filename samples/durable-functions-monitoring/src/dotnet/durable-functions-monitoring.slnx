@@ -8,4 +8,7 @@
   <Folder Name="/apis/">
     <Project Path="mock-api/ExternalSystemMockApi.csproj" />
   </Folder>
+  <Folder Name="/db-setup/">
+    <Project Path="db-setup/DbSetup.csproj" />
+  </Folder>
 </Solution>

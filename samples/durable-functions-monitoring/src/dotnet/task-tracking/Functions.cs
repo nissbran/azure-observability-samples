@@ -21,6 +21,7 @@ public static class ProcessSteps
     public const string SendExternalRequest = "SendExternalRequest";
     public const string StoreResultToBlob = "StoreResultToBlob";
     public const string NotifyUserOfCompletion = "NotifyUserOfCompletion";
+    public const string PersistAuditLog = "PersistAuditLog";
     
     public const string WaitForUploadEvent = "WaitForUpload";
 }
@@ -42,18 +43,34 @@ public static class OrchestratorFunctions
             RequestedAt = context.CurrentUtcDateTime,
             Requester = input.UserId
         });
+
+        await PersistAuditLogAsync(context, "Started", input.UserId);
         
         var externalRequest = new ProcessTaskExternalRequest
         {
             TaskId = context.InstanceId,
             DocumentType = "Report"
         };
+        
+        context.SetCustomStatus(new
+        {
+            Status = "Sending external request."
+        });
 
         await context.CallActivityAsync(ProcessSteps.SendExternalRequest, externalRequest);
+        context.SetCustomStatus(new
+        {
+            Status = "Waiting for upload."
+        });
 
         await context.Entities.SignalEntityAsync(auditId, nameof(TaskAudit.SetToWaiting), context.CurrentUtcDateTime);
+        await PersistAuditLogAsync(context, "Waiting");
         
         var callbackPayload = await context.WaitForExternalEvent<ProcessTaskCallbackResult>(ProcessSteps.WaitForUploadEvent);
+        context.SetCustomStatus(new
+        {
+            Status = "Processing callback."
+        }); 
 
         var result = new ProcessTaskResult
         {
@@ -64,13 +81,21 @@ public static class OrchestratorFunctions
         };
  
         await context.CallActivityAsync(ProcessSteps.StoreResultToBlob, result);
+        context.SetCustomStatus(new
+        {
+            Status = "Notifying user of completion."
+        });
         
         await context.Entities.SignalEntityAsync(auditId, nameof(TaskAudit.SetStored), context.CurrentUtcDateTime);
+        await PersistAuditLogAsync(context, "Stored");
 
         await context.CallActivityAsync(ProcessSteps.NotifyUserOfCompletion, result);
         
         await context.Entities.SignalEntityAsync(auditId, nameof(TaskAudit.SetNotified), context.CurrentUtcDateTime);
+        await PersistAuditLogAsync(context, "Notified");
+        
         await context.Entities.SignalEntityAsync(auditId, nameof(TaskAudit.MarkCompleted), context.CurrentUtcDateTime);
+        await PersistAuditLogAsync(context, "Completed");
         
         var finalAudit = await context.Entities.CallEntityAsync<TaskAuditState>(auditId, nameof(TaskAudit.GetState));
 
@@ -78,6 +103,20 @@ public static class OrchestratorFunctions
         {
             CompletedAt = finalAudit.CompletedAt.GetValueOrDefault()
         };
+    }
+
+    private static Task PersistAuditLogAsync(TaskOrchestrationContext context, string status, string? requester = null)
+    {
+        var timestamp = new DateTimeOffset(context.CurrentUtcDateTime, TimeSpan.Zero);
+        var request = new AuditLogRequest
+        {
+            InstanceId = context.InstanceId,
+            Requester = requester,
+            Status = status,
+            Timestamp = timestamp
+        };
+
+        return context.CallActivityAsync(ProcessSteps.PersistAuditLog, request);
     }
 }
 
@@ -337,5 +376,37 @@ public static class CounterOrchestrationFunctions
             // One-way signal to the entity which updates the value - does not await a response
             await context.Entities.SignalEntityAsync(entityId, "Add", 1);
         }
+    }
+}
+
+public class AuditLogActivities(TaskAuditDbContext dbContext)
+{
+    [Function(ProcessSteps.PersistAuditLog)]
+    public async Task PersistAuditLog([ActivityTrigger] AuditLogRequest request, FunctionContext executionContext)
+    {
+        var task = await dbContext.Tasks.FindAsync(request.InstanceId);
+        if (task == null)
+        {
+            task = new OrchestrationTask
+            {
+                InstanceId = request.InstanceId,
+                Requester = request.Requester,
+                CreatedAt = request.Timestamp,
+                LastUpdatedAt = request.Timestamp
+            };
+            dbContext.Tasks.Add(task);
+        }
+        else
+        {
+            task.LastUpdatedAt = request.Timestamp;
+        }
+
+        dbContext.AuditLogs.Add(new OrchestrationAuditLog
+        {
+            InstanceId = request.InstanceId,
+            Status = request.Status,
+            Timestamp = request.Timestamp
+        });
+        await dbContext.SaveChangesAsync();
     }
 }
