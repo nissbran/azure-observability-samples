@@ -27,10 +27,10 @@ Shows how to set up monitoring for applications running on Azure Kubernetes Serv
 ### 3. [Azure Container Apps Application Monitoring](/samples/aca-application-monitoring/ReadMe.md)
 Illustrates monitoring applications on Azure Container Apps using Azure Monitor, Application Insights, and OpenTelemetry.
 
-### 4. [Azure API Management (APIM) Monitoring](/samples/apim/)
+### 4. [Azure API Management (APIM) Monitoring](/samples/apim/README.md)
 Contains policies and scripts for monitoring and managing Azure API Management services.
 
-### 5. [Durable Functions Monitoring](/samples/durable-functions-monitoring/)
+### 5. [Durable Functions Monitoring](/samples/durable-functions-monitoring/README.md)
 Demonstrates monitoring long-running orchestrations with Azure Durable Functions, including SQL-backed and Azure Managed Durable Task Scheduler options.
 
 ## Getting Started
