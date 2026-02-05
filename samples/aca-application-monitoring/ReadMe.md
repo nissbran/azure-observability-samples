@@ -2,11 +2,21 @@
 
 This sample demonstrates how to monitor an application running on Azure Container Apps with Azure Monitor and App Insights using Open Telemetry. The sample application is a simple credit booking application that consists of two services: a credit API and a booking processor. The credit API provides a REST API to create a credit and add transactions to it. The booking processor consumes the booking messages and processes bookings.
 
-Disclaimer: This is not an official Microsoft repository. The samples are provided as-is without any warranty. Use at your own risk.
+**Disclaimer**: This is not an official Microsoft repository. The samples are provided as-is without any warranty. Use at your own risk.
 
-Disclaimer 2: This repostory uses 2 preview features:
+**Disclaimer 2**: This repository uses 2 preview features:
 * Azure Container Apps Open Telemetry Agents
 * Trace support for Azure Service Bus
+
+## Prerequisites
+
+Before working with this sample, ensure you have:
+
+* [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli) - for deploying and managing Azure resources
+* [.NET SDK](https://dotnet.microsoft.com/download) (version 8.0 or later) - for building and running the application
+* [Docker Desktop](https://www.docker.com/products/docker-desktop) - for building and running containers locally
+* [.NET Aspire](https://learn.microsoft.com/en-us/dotnet/aspire/fundamentals/setup-tooling) - for local development with Aspire
+* An active Azure subscription with permissions to create Container Apps resources
 
 ## Run the application locally with .NET Aspire
 
