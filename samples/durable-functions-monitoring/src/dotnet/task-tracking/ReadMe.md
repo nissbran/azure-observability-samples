@@ -4,7 +4,7 @@ This project contains an example implementation of a Durable Functions applicati
 
 ## Storage Configuration
 
-Storage configruration for SQL backed Durable Functions is done in the `host.json` file. Below is an example configuration snippet:
+Storage configuration for SQL backed Durable Functions is done in the `host.json` file. Below is an example configuration snippet:
 ```Json
 "storageProvider": {
     "type": "mssql",

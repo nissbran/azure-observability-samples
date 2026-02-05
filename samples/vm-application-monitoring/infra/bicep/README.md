@@ -19,7 +19,7 @@ param emailAddress = [
 ]
 ```
 
-Top deploy the resources run the following command, replacing the location with your own values:
+To deploy the resources run the following command, replacing the location with your own values:
 
 ```bash
 az deployment sub create -n vmmondemo -l yourlocation --template-file main.bicep --parameters main.bicepparam
